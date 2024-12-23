@@ -1,0 +1,140 @@
+import sublime
+import sublime_plugin
+import threading
+from ..constants import PLUGIN_NAME, SETTINGS_FILE
+from ..api.api import ClaudeAPI
+from ..api.handler import StreamingResponseHandler
+from ..input.handler import ClaudeInputHandler
+
+class AskClaudeCommand(sublime_plugin.TextCommand):
+    def __init__(self, view):
+        super().__init__(view)
+        self.chat_view = None
+        self.settings = None
+
+    def load_settings(self):
+        if not self.settings:
+            self.settings = sublime.load_settings(SETTINGS_FILE)
+
+    def is_visible(self):
+        return True
+
+    def is_enabled(self):
+        return True
+
+    def create_chat_panel(self):
+        try:
+            window = self.view.window()
+            chat_view = None
+
+            # Find existing chat view
+            for view in window.views():
+                if view.name() == "Claude Chat":
+                    chat_view = view
+                    break
+
+            # Create new if not found
+            if not chat_view:
+                chat_view = window.new_file()
+                chat_view.set_name("Claude Chat")
+                chat_view.set_scratch(True)
+                chat_view.assign_syntax('Packages/Markdown/Markdown.sublime-syntax')
+                chat_view.set_read_only(True)
+
+            self.chat_view = chat_view
+            self.load_settings()
+            chat_width = self.settings.get('chat_panel_width', 0.3)
+
+            # Only set layout if chat view is not visible
+            if self.chat_view.window() != window:
+                layout = {
+                    'cells': [[0, 0, 1, 1], [1, 0, 2, 1]],
+                    'rows': [0.0, 1.0],
+                    'cols': [0.0, 1.0 - chat_width, 1.0]
+                }
+                active_group = window.active_group()
+                window.set_layout(layout)
+                window.set_view_index(self.chat_view, 1, 0)
+                window.focus_group(active_group)
+
+            return self.chat_view
+
+        except Exception as e:
+            print("{0} Error creating chat panel: {1}".format(PLUGIN_NAME, str(e)))
+            sublime.error_message("{0} Error: Could not create chat panel".format(PLUGIN_NAME))
+            return None
+
+    def handle_input(self, code, question):
+        handler = ClaudeInputHandler.get_instance()
+        handler.store_text(question)
+        handler.history_pos = -1
+        self.send_to_claude(code, question)
+
+    def run(self, edit, code=None, question=None):
+        try:
+            self.load_settings()
+            chat_panel = self.create_chat_panel()
+
+            if not chat_panel:
+                return
+
+            if not self.settings.get('api_key'):
+                self.chat_view.set_read_only(False)
+                self.chat_view.run_command('append', {
+                    'characters': "⚠️ Claude API key not configured. Please set your API key in `${packages}/User/Claude.sublime-settings`\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\",\n    \"chat_panel_width\": 0.3\n}\n```\n",
+                    'force': True,
+                    'scroll_to_end': True
+                })
+                self.chat_view.set_read_only(True)
+                return
+
+            if code is not None and question is not None:
+                self.send_to_claude(code, question)
+                return
+
+            sel = self.view.sel()
+            selected_text = self.view.substr(sel[0]) if sel else ''
+
+            handler = ClaudeInputHandler.get_instance()
+            view = self.view.window().show_input_panel(
+                "Ask Claude:",
+                "",
+                lambda q: self.handle_input(selected_text, q),
+                None,
+                None
+            )
+            view.settings().set("is_claude_input", True)
+            handler.input_view = view
+
+        except Exception as e:
+            print("{0} Error in run command: {1}".format(PLUGIN_NAME, str(e)))
+            sublime.error_message("{0} Error: Could not process request".format(PLUGIN_NAME))
+
+    def send_to_claude(self, code, question):
+        try:
+            if not self.chat_view:
+                return
+
+            message = "## Question\n{0}\n\n### Selected Code\n```\n{1}\n```\n\n---\n\n### Claude's Response\n".format(
+                question, code
+            )
+
+            self.chat_view.set_read_only(False)
+            self.chat_view.run_command('append', {
+                'characters': message,
+                'force': True,
+                'scroll_to_end': True
+            })
+
+            api = ClaudeAPI()
+            handler = StreamingResponseHandler(self.chat_view)
+
+            thread = threading.Thread(
+                target=api.stream_response,
+                args=(code, question, handler.append_chunk)
+            )
+            thread.start()
+
+        except Exception as e:
+            print("{0} Error sending to Claude: {1}".format(PLUGIN_NAME, str(e)))
+            sublime.error_message("{0} Error: Could not send message".format(PLUGIN_NAME))

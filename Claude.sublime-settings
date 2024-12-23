@@ -1,0 +1,13 @@
+{
+    // Your Anthropic API key from https://console.anthropic.com/settings/keys
+    "api_key": "",
+
+    // Claude model to use - available options:
+    // "claude-3-opus-20240229"   - Most capable, best for complex tasks
+    // "claude-3-sonnet-20240229" - Fast and accurate for everyday tasks
+    // "claude-3-haiku-20240229"  - Fastest, optimized for brief responses
+    "model": "claude-3-opus-20240229",
+
+    // Width of the chat panel (0.0 to 1.0)
+    "chat_panel_width": 0.3
+}

@@ -1,0 +1,22 @@
+[
+    {
+        "keys": ["ctrl+shift+c"],
+        "command": "claude_input"
+    },
+    {
+        "keys": ["up"],
+        "command": "input_history",
+        "args": {"forward": false},
+        "context": [
+            {"key": "input_history", "operator": "equal", "operand": true}
+        ]
+    },
+    {
+        "keys": ["down"],
+        "command": "input_history",
+        "args": {"forward": true},
+        "context": [
+            {"key": "input_history", "operator": "equal", "operand": true}
+        ]
+    }
+]

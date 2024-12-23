@@ -1,0 +1,36 @@
+[
+    {
+        "id": "tools",
+        "children": [
+            {
+                "id": "claude",
+                "caption": "Ask Claude",
+                "command": "ask_claude"
+            }
+        ]
+    },
+    {
+        "id": "preferences",
+        "children": [
+            {
+                "caption": "Package Settings",
+                "mnemonic": "P",
+                "id": "package-settings",
+                "children": [
+                    {
+                        "caption": "Claude",
+                        "children": [
+                            {
+                                "command": "open_file",
+                                "args": {
+                                    "file": "${packages}/User/Claude.sublime-settings"
+                                },
+                                "caption": "Settings"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

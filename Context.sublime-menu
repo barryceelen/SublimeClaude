@@ -1,0 +1,7 @@
+[
+	{
+		"id": "claude-context",
+		"caption": "Ask Claude",
+		"command": "ask_claude"
+	}
+]
