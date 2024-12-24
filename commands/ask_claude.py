@@ -156,7 +156,7 @@ class AskClaudeCommand(sublime_plugin.TextCommand):
             if code.strip():
                 message += "### Selected Code\n\n```\n{0}\n```\n\n".format(code)
 
-            message += "\n\n### Claude's Response\n\n"
+            message += "### Claude's Response\n\n"
 
             self.chat_view.set_read_only(False)
             self.chat_view.run_command('append', {
