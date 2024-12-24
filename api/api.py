@@ -72,11 +72,11 @@ class ClaudeAPI:
 
             except urllib.error.HTTPError as e:
                 if e.code == 401:
-                    handle_error("\n\n⚠️ Authentication failed. Please check your API key in Claude.sublime-settings.\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\",\n    \"chat_panel_width\": 0.3\n}\n```\n")
+                    handle_error("⚠️ Authentication failed. Please check your API key in Claude.sublime-settings.\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\",\n    \"chat_panel_width\": 0.3\n}\n```\n")
                 else:
-                    handle_error("\n\n⚠️ API Error: {0}".format(str(e)))
+                    handle_error("⚠️ API Error: {0}".format(str(e)))
             except urllib.error.URLError as e:
-                handle_error("\n\n⚠️ Connection Error: {0}".format(str(e)))
+                handle_error("⚠️ Connection Error: {0}".format(str(e)))
 
         except Exception as e:
-            handle_error("\n\n⚠️ Error: {0}".format(str(e)))
+            handle_error("⚠️ Error: {0}".format(str(e)))
