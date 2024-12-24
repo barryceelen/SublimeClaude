@@ -24,7 +24,6 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
 
     def create_chat_panel(self):
         try:
-            # First verify we have a valid window
             window = self.view.window()
             if not window:
                 print("{0} Error: No active window found".format(PLUGIN_NAME))
@@ -54,24 +53,6 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
 
             self.chat_view = chat_view
             self.load_settings()
-            chat_width = self.settings.get('chat_panel_width', 0.3)
-
-            # Verify chat_view has a valid window before proceeding
-            if not self.chat_view.window():
-                print("{0} Error: Chat view has no associated window".format(PLUGIN_NAME))
-                sublime.error_message("{0} Error: Chat view has no associated window".format(PLUGIN_NAME))
-                return None
-
-            # Only set layout if chat view is not visible in current window
-            if self.chat_view.window() != window:
-                layout = {
-                    'cells': [[0, 0, 1, 1], [1, 0, 2, 1]],
-                    'rows': [0.0, 1.0],
-                    'cols': [0.0, 1.0 - chat_width, 1.0]
-                }
-                active_group = window.active_group()
-                window.set_layout(layout)
-                window.set_view_index(self.chat_view, 1, 0)
 
             return self.chat_view
 

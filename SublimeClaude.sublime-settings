@@ -14,8 +14,5 @@
     // Note that a 'Claude: Switch Model' command exists that allows you to update the model that is
     // used on the fly via the command palette.
     //
-    "model": "claude-3-opus-latest",
-
-    // Width of the chat panel (0.0 to 1.0)
-    "chat_panel_width": 0.3
+    "model": "claude-3-opus-latest"
 }
