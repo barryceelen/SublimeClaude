@@ -2,5 +2,9 @@
     {
         "caption": "Claude: Ask Question",
         "command": "sublime_claude_ask_question"
+    },
+    {
+        "caption": "Claude: Switch Model",
+        "command": "sublime_claude_switch_model"
     }
 ]

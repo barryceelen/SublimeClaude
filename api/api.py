@@ -72,7 +72,7 @@ class ClaudeAPI:
 
             except urllib.error.HTTPError as e:
                 if e.code == 401:
-                    handle_error("⚠️ Authentication failed. Please check your API key in Claude.sublime-settings.\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\",\n    \"chat_panel_width\": 0.3\n}\n```\n")
+                    handle_error("⚠️ Authentication failed. Please check your API key in SublimeClaude.sublime-settings.\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\",\n    \"chat_panel_width\": 0.3\n}\n```\n")
                 else:
                     handle_error("⚠️ API Error: {0}".format(str(e)))
             except urllib.error.URLError as e:
@@ -80,3 +80,33 @@ class ClaudeAPI:
 
         except Exception as e:
             handle_error("⚠️ Error: {0}".format(str(e)))
+
+    def fetch_models(self):
+        try:
+            headers = {
+                'x-api-key': self.api_key,
+                'anthropic-version': '2023-06-01',
+            }
+
+            req = urllib.request.Request(
+                urllib.parse.urljoin(self.BASE_URL, 'models'),
+                headers=headers,
+                method='GET'
+            )
+
+            with urllib.request.urlopen(req) as response:
+                data = json.loads(response.read().decode('utf-8'))
+                model_ids = [item['id'] for item in data['data']]
+                return model_ids
+
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                sublime.error_message("⚠️ Authentication failed. Please check your API key in SublimeClaude.sublime-settings.")
+            else:
+                sublime.error_message("⚠️ API Error: {0}".format(str(e)))
+        except urllib.error.URLError as e:
+            sublime.error_message("⚠️ Connection Error: {0}".format(str(e)))
+        except Exception as e:
+            sublime.error_message("⚠️ Error: {0}".format(str(e)))
+
+        return []
