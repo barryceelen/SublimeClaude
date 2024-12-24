@@ -2,11 +2,21 @@
     // Your Anthropic API key from https://console.anthropic.com/settings/keys
     "api_key": "",
 
-    // Claude model to use - available options:
-    // "claude-3-opus-20240229"   - Most capable, best for complex tasks
-    // "claude-3-sonnet-20240229" - Fast and accurate for everyday tasks
-    // "claude-3-haiku-20240229"  - Fastest, optimized for brief responses
-    "model": "claude-3-opus-20240229",
+    // Claude model to use.
+    //
+    // https://docs.anthropic.com/en/docs/about-claude/models#model-comparison-table
+    //
+    // Note that the `-latest` alias point to the most recent snapshot of a given model. Claude
+    // recommends using using specific model versions (e.g., claude-3-5-sonnet-20241022) in
+    // production applications to ensure consistent behavior.
+    //
+    // Available model options at the time of writing:
+    //
+    // claude-3-opus-20240229 / claude-3-opus-latest     - Most capable, best for complex tasks
+    // claude-3-sonnet-20240229 / claude-3-sonnet-latest - Fast and accurate for everyday tasks
+    // claude-3-haiku-20240307 / claude-3-haiku-latest   - Fastest, optimized for brief responses
+    //
+    "model": "claude-3-opus-latest",
 
     // Width of the chat panel (0.0 to 1.0)
     "chat_panel_width": 0.3
