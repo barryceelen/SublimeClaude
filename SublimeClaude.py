@@ -1,3 +1,3 @@
-from .commands.ask_claude import AskClaudeCommand
-from .commands.input_history import InputHistoryCommand
-from .input.listener import InputHistoryListener
+from .commands.ask_question import SublimeClaudeAskQuestionCommand
+from .commands.input_history import SublimeClaudeInputHistoryCommand
+from .input.listener import SublimeClaudeInputHistoryListener

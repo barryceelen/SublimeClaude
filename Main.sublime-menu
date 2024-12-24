@@ -5,7 +5,7 @@
             {
                 "id": "claude",
                 "caption": "Ask Claude",
-                "command": "ask_claude"
+                "command": "sublime_claude_ask_question"
             }
         ]
     },

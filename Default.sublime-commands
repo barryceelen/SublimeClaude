@@ -1,6 +1,6 @@
 [
     {
-        "caption": "Ask Claude",
-        "command": "ask_claude"
+        "caption": "Claude: Ask Question",
+        "command": "sublime_claude_ask_question"
     }
 ]

@@ -6,7 +6,7 @@ from ..api.api import ClaudeAPI
 from ..api.handler import StreamingResponseHandler
 from ..input.handler import ClaudeInputHandler
 
-class AskClaudeCommand(sublime_plugin.TextCommand):
+class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
     def __init__(self, view):
         super().__init__(view)
         self.chat_view = None
