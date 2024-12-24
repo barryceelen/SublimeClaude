@@ -3,7 +3,7 @@ import json
 import urllib.request
 import urllib.parse
 import urllib.error
-from ..constants import SETTINGS_FILE
+from ..constants import ANTHROPIC_VERSION, SETTINGS_FILE
 
 class ClaudeAPI:
     BASE_URL = 'https://api.anthropic.com/v1/'
@@ -23,7 +23,7 @@ class ClaudeAPI:
         try:
             headers = {
                 'x-api-key': self.api_key,
-                'anthropic-version': '2023-06-01',
+                'anthropic-version': ANTHROPIC_VERSION,
                 'content-type': 'application/json',
             }
 
@@ -85,7 +85,7 @@ class ClaudeAPI:
         try:
             headers = {
                 'x-api-key': self.api_key,
-                'anthropic-version': '2023-06-01',
+                'anthropic-version': ANTHROPIC_VERSION,
             }
 
             req = urllib.request.Request(
