@@ -1,7 +1,7 @@
 [
     {
-        "keys": ["ctrl+shift+c"],
-        "command": "claude_input"
+        "keys": ["super+k", "super+c"],
+        "command": "ask_claude"
     },
     {
         "keys": ["up"],
