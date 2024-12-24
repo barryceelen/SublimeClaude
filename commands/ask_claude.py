@@ -24,7 +24,13 @@ class AskClaudeCommand(sublime_plugin.TextCommand):
 
     def create_chat_panel(self):
         try:
+            # First verify we have a valid window
             window = self.view.window()
+            if not window:
+                print("{0} Error: No active window found".format(PLUGIN_NAME))
+                sublime.error_message("{0} Error: No active window found".format(PLUGIN_NAME))
+                return None
+
             chat_view = None
 
             # Find existing chat view
@@ -36,6 +42,11 @@ class AskClaudeCommand(sublime_plugin.TextCommand):
             # Create new if not found
             if not chat_view:
                 chat_view = window.new_file()
+                if not chat_view:
+                    print("{0} Error: Could not create new file".format(PLUGIN_NAME))
+                    sublime.error_message("{0} Error: Could not create new file".format(PLUGIN_NAME))
+                    return None
+
                 chat_view.set_name("Claude Chat")
                 chat_view.set_scratch(True)
                 chat_view.assign_syntax('Packages/Markdown/Markdown.sublime-syntax')
@@ -45,7 +56,13 @@ class AskClaudeCommand(sublime_plugin.TextCommand):
             self.load_settings()
             chat_width = self.settings.get('chat_panel_width', 0.3)
 
-            # Only set layout if chat view is not visible
+            # Verify chat_view has a valid window before proceeding
+            if not self.chat_view.window():
+                print("{0} Error: Chat view has no associated window".format(PLUGIN_NAME))
+                sublime.error_message("{0} Error: Chat view has no associated window".format(PLUGIN_NAME))
+                return None
+
+            # Only set layout if chat view is not visible in current window
             if self.chat_view.window() != window:
                 layout = {
                     'cells': [[0, 0, 1, 1], [1, 0, 2, 1]],
@@ -73,15 +90,21 @@ class AskClaudeCommand(sublime_plugin.TextCommand):
     def run(self, edit, code=None, question=None):
         try:
             self.load_settings()
-            chat_panel = self.create_chat_panel()
 
+            # Verify we have a valid window before proceeding
+            if not self.view.window():
+                print("{0} Error: No active window found".format(PLUGIN_NAME))
+                sublime.error_message("{0} Error: No active window found".format(PLUGIN_NAME))
+                return
+
+            chat_panel = self.create_chat_panel()
             if not chat_panel:
                 return
 
             if not self.settings.get('api_key'):
                 self.chat_view.set_read_only(False)
                 self.chat_view.run_command('append', {
-                    'characters': "⚠️ Claude API key not configured. Please set your API key in `${packages}/User/Claude.sublime-settings`\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\",\n    \"chat_panel_width\": 0.3\n}\n```\n",
+                    'characters': "⚠️ Claude API key not configured. Please set your API key in `${packages}/User/SublimeClaude.sublime-settings`\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\",\n    \"chat_panel_width\": 0.3\n}\n```\n",
                     'force': True,
                     'scroll_to_end': True
                 })
@@ -95,14 +118,27 @@ class AskClaudeCommand(sublime_plugin.TextCommand):
             sel = self.view.sel()
             selected_text = self.view.substr(sel[0]) if sel else ''
 
+            # Verify window again before showing input panel
+            window = self.view.window()
+            if not window:
+                print("{0} Error: No active window found".format(PLUGIN_NAME))
+                sublime.error_message("{0} Error: No active window found".format(PLUGIN_NAME))
+                return
+
             handler = ClaudeInputHandler.get_instance()
-            view = self.view.window().show_input_panel(
+            view = window.show_input_panel(
                 "Ask Claude:",
                 "",
                 lambda q: self.handle_input(selected_text, q),
                 None,
                 None
             )
+
+            if not view:
+                print("{0} Error: Could not create input panel".format(PLUGIN_NAME))
+                sublime.error_message("{0} Error: Could not create input panel".format(PLUGIN_NAME))
+                return
+
             view.settings().set("is_claude_input", True)
             handler.input_view = view
 
