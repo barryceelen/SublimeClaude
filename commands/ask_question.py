@@ -72,7 +72,6 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
                 active_group = window.active_group()
                 window.set_layout(layout)
                 window.set_view_index(self.chat_view, 1, 0)
-                window.focus_group(active_group)
 
             return self.chat_view
 
