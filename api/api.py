@@ -32,7 +32,7 @@ class ClaudeAPI:
                 'messages': [
                     {
                         'role': 'user',
-                        'content': 'Code:\n```\n{0}\n```\n\nQuestion: {1}'.format(code, question)
+                        'content': 'Code:\n```\n{0}\n```\n\nQuestion: {1}'.format(code, question) if code else 'Question: {0}'.format(question)
                     }
                 ],
                 'stream': True,
