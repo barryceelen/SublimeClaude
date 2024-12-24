@@ -6,9 +6,10 @@
     //
     // https://docs.anthropic.com/en/docs/about-claude/models#model-comparison-table
     //
-    // By default the 'claude-3-opus-latest' is used. Note that the `-latest` alias point to the
-    // most recent snapshot of a given model. Claude recommends using using specific model versions
-    // (e.g., claude-3-5-sonnet-20241022) in production applications to ensure consistent behavior.
+    // By default the 'claude-3-opus-latest' model is used. Note that the `-latest` alias point to
+    // the most recent snapshot of a given model. Claude recommends using using specific model
+    // versions (e.g., claude-3-5-sonnet-20241022) in production applications to ensure consistent
+    // behavior.
     //
     // Note that a 'Claude: Switch Model' command exists that allows you to update the model that is
     // used on the fly via the command palette.
