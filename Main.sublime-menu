@@ -23,7 +23,7 @@
                             {
                                 "command": "open_file",
                                 "args": {
-                                    "file": "${packages}/User/Claude.sublime-settings"
+                                    "file": "${packages}/User/SublimeClaude.sublime-settings"
                                 },
                                 "caption": "Settings"
                             }
