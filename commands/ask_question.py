@@ -131,7 +131,12 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             if not self.chat_view:
                 return
 
-            message = "\n\n## Question\n\n{0}\n\n".format(question)
+            message = '';
+
+            if self.chat_view.size() > 0:
+            	message += "\n\n";
+
+            message += "## Question\n\n{0}\n\n".format(question)
 
             if code.strip():
                 message += "### Selected Code\n\n```\n{0}\n```\n\n".format(code)
