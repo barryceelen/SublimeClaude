@@ -165,6 +165,8 @@ class AskClaudeCommand(sublime_plugin.TextCommand):
                 'scroll_to_end': True
             })
 
+            self.chat_view.window().focus_view(self.chat_view)
+
             api = ClaudeAPI()
             handler = StreamingResponseHandler(self.chat_view)
 
