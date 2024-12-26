@@ -73,13 +73,13 @@ class ClaudeAPI:
             except urllib.error.HTTPError as e:
                 if e.code == 401:
                     print("Claude API: {0}".format(str(e)))
-                    sublime.error_message("Authentication invalid when fetching results from the Claude API.")
+                    handle_error("Authentication invalid when fetching results from the Claude API.")
                 else:
                     print("Claude API: {0}".format(str(e)))
-                    sublime.error_message("An error occurred fetching results  from the Claude API.")
+                    handle_error("An error occurred fetching results from the Claude API.")
             except urllib.error.URLError as e:
                 print("Claude API: {0}".format(str(e)))
-                sublime.error_message("An error occurred fetching results  from the Claude API.")
+                handle_error("An error occurred fetching results from the Claude API.")
 
         except Exception as e:
             sublime.error_message(str(e))
