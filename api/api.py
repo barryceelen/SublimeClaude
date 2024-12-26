@@ -3,7 +3,7 @@ import json
 import urllib.request
 import urllib.parse
 import urllib.error
-from ..constants import ANTHROPIC_VERSION, SETTINGS_FILE
+from ..constants import ANTHROPIC_VERSION, DEFAULT_MODEL, SETTINGS_FILE
 
 class ClaudeAPI:
     BASE_URL = 'https://api.anthropic.com/v1/'
@@ -11,7 +11,7 @@ class ClaudeAPI:
     def __init__(self):
         self.settings = sublime.load_settings(SETTINGS_FILE)
         self.api_key = self.settings.get('api_key')
-        self.model = self.settings.get('model', 'claude-3-opus-20240229')
+        self.model = self.settings.get('model', DEFAULT_MODEL)
 
     def stream_response(self, code, question, chunk_callback):
         def handle_error(error_msg):
