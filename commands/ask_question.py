@@ -84,7 +84,7 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             if not self.settings.get('api_key'):
                 self.chat_view.set_read_only(False)
                 self.chat_view.run_command('append', {
-                    'characters': "⚠️ Claude API key not configured. Please set your API key in `${packages}/User/SublimeClaude.sublime-settings`\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\",\n    \"chat_panel_width\": 0.3\n}\n```\n",
+                    'characters': "⚠️ Claude API key not configured. Please set your API key in `${packages}/User/SublimeClaude.sublime-settings`\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\"\n}\n```\n",
                     'force': True,
                     'scroll_to_end': True
                 })
@@ -105,7 +105,6 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
                 sublime.error_message("{0} Error: No active window found".format(PLUGIN_NAME))
                 return
 
-            handler = ClaudeInputHandler.get_instance()
             view = window.show_input_panel(
                 "Ask Claude:",
                 "",
@@ -119,7 +118,12 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
                 sublime.error_message("{0} Error: Could not create input panel".format(PLUGIN_NAME))
                 return
 
+            model = self.settings.get('model')
+            sublime.status_message('Model: {}'.format(model or "Not set"))
+
             view.settings().set("is_claude_input", True)
+
+            handler = ClaudeInputHandler.get_instance()
             handler.input_view = view
 
         except Exception as e:
