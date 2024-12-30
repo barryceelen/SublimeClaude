@@ -1,4 +1,4 @@
 from .commands.ask_question import SublimeClaudeAskQuestionCommand
 from .commands.input_history import SublimeClaudeInputHistoryCommand
-from .settings.switch_model import SublimeClaudeSwitchModelCommand
+from .settings.set_model import SublimeClaudeSetModelCommand
 from .input.listener import SublimeClaudeInputHistoryListener

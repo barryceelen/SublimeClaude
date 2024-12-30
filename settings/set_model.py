@@ -3,7 +3,7 @@ import sublime_plugin
 from ..api.api import ClaudeAPI
 from ..constants import SETTINGS_FILE
 
-class SublimeClaudeSwitchModelCommand(sublime_plugin.WindowCommand):
+class SublimeClaudeSetModelCommand(sublime_plugin.WindowCommand):
     """
     A command to switch between different Claude AI models.
 
@@ -30,7 +30,6 @@ class SublimeClaudeSwitchModelCommand(sublime_plugin.WindowCommand):
             if index != -1:
                 selected_model = models[index]
                 settings.set('model', selected_model)
-                settings.save()
                 sublime.status_message("Claude model switched to {0}".format(str(selected_model)))
 
         self.window.show_quick_panel(models, on_select, 0, selected_index)
