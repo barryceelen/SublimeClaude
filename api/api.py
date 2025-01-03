@@ -15,14 +15,7 @@ class ClaudeAPI:
         self.model = self.settings.get('model', DEFAULT_MODEL)
 
     def stream_response(self, chunk_callback, messages):
-        """Stream API response for the given messages.
-
-        https://docs.anthropic.com/en/api/messages
-
-        Args:
-            chunk_callback: Callback function for response chunks
-            messages: List of message objects with role/content
-        """
+        """Stream API response for the given messages."""
         def handle_error(error_msg):
             sublime.set_timeout(
                 lambda msg=error_msg: chunk_callback(msg),
@@ -30,6 +23,7 @@ class ClaudeAPI:
             )
 
         try:
+            sublime.status_message('Fetching response from Claude API...')
             headers = {
                 'x-api-key': self.api_key,
                 'anthropic-version': ANTHROPIC_VERSION,
@@ -86,12 +80,16 @@ class ClaudeAPI:
             except urllib.error.URLError as e:
                 print("Claude API: {0}".format(str(e)))
                 handle_error("An error occurred fetching results from the Claude API.")
+            finally:
+                sublime.status_message('')  # Clear status message
 
         except Exception as e:
             sublime.error_message(str(e))
+            sublime.status_message('')  # Clear status message
 
     def fetch_models(self):
         try:
+            sublime.status_message('Fetching available models from Claude API...')
             headers = {
                 'x-api-key': self.api_key,
                 'anthropic-version': ANTHROPIC_VERSION,
@@ -106,6 +104,7 @@ class ClaudeAPI:
             with urllib.request.urlopen(req) as response:
                 data = json.loads(response.read().decode('utf-8'))
                 model_ids = [item['id'] for item in data['data']]
+                sublime.status_message('')  # Clear status message
                 return model_ids
 
         except urllib.error.HTTPError as e:
@@ -121,5 +120,7 @@ class ClaudeAPI:
         except Exception as e:
             print("Claude API: {0}".format(str(e)))
             sublime.error_message("An error occurred fetching the available models from the Claude API.")
+        finally:
+            sublime.status_message('')  # Clear status message
 
         return []
