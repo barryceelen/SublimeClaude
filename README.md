@@ -24,9 +24,3 @@ Type "Ask Claude" in the command palette or find the "Ask Claude" menu item in t
 1. Clone the Gihub repository to your Packages directory
 2. Get an API key from [Anthropic](https://console.anthropic.com/)
 3. Configure API key in `Preferences > Package Settings > Sublime Claude > Settings`:
-```json
-{
-   "api_key": "YOUR_API_KEY",
-   "model": "claude-3-opus-20240229"
-}
-
