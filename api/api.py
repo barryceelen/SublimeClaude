@@ -14,7 +14,15 @@ class ClaudeAPI:
         self.max_tokens = self.settings.get('max_tokens', MAX_TOKENS)
         self.model = self.settings.get('model', DEFAULT_MODEL)
 
-    def stream_response(self, code, question, chunk_callback):
+    def stream_response(self, chunk_callback, messages):
+        """Stream API response for the given messages.
+
+        https://docs.anthropic.com/en/api/messages
+
+        Args:
+            chunk_callback: Callback function for response chunks
+            messages: List of message objects with role/content
+        """
         def handle_error(error_msg):
             sublime.set_timeout(
                 lambda msg=error_msg: chunk_callback(msg),
@@ -30,12 +38,7 @@ class ClaudeAPI:
 
             data = {
                 'model': self.model,
-                'messages': [
-                    {
-                        'role': 'user',
-                        'content': 'Code:\n```\n{0}\n```\n\nQuestion: {1}'.format(code, question) if code else 'Question: {0}'.format(question)
-                    }
-                ],
+                'messages': messages,
                 'stream': True,
                 'max_tokens': MAX_TOKENS
             }
@@ -72,6 +75,8 @@ class ClaudeAPI:
                             continue  # Skip invalid chunks without error messages
 
             except urllib.error.HTTPError as e:
+                error_content = e.read().decode('utf-8')
+                print("Claude API Error Content:", error_content)
                 if e.code == 401:
                     print("Claude API: {0}".format(str(e)))
                     handle_error("Authentication invalid when fetching results from the Claude API.")

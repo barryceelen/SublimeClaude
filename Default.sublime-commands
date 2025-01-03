@@ -6,5 +6,21 @@
     {
         "caption": "Claude: Set Model",
         "command": "sublime_claude_set_model"
+    },
+    {
+        "caption": "Claude: Clear Chat History",
+        "command": "sublime_claude_clear_chat_history"
+    },
+    {
+        "caption": "Claude: Show Chat History",
+        "command": "sublime_claude_show_chat_history"
+    },
+    {
+        "caption": "Claude: Export Chat History",
+        "command": "sublime_claude_export_chat_history"
+    },
+    {
+        "caption": "Claude: Import Chat History",
+        "command": "sublime_claude_import_chat_history"
     }
 ]

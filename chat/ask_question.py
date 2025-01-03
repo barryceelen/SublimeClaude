@@ -5,6 +5,7 @@ from ..constants import PLUGIN_NAME, SETTINGS_FILE
 from ..api.api import ClaudeAPI
 from ..api.handler import StreamingResponseHandler
 from ..input.handler import ClaudeInputHandler
+from .chat_history import SublimeClaudeChatHistory
 
 class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
     def __init__(self, view):
@@ -138,7 +139,7 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             message = '';
 
             if self.chat_view.size() > 0:
-            	message += "\n\n";
+                message += "\n\n";
 
             message += "## Question\n\n{0}\n\n".format(question)
 
@@ -146,6 +147,15 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
                 message += "### Selected Code\n\n```\n{0}\n```\n\n".format(code)
 
             message += "### Claude's Response\n\n"
+
+            # Get the singleton instance
+            chat_history = SublimeClaudeChatHistory()
+
+            # Add user message to history
+            user_message = question
+            if code.strip():
+                user_message = "{0}\n\nCode:\n{1}".format(question, code)
+            chat_history.add_message("user", user_message)
 
             self.chat_view.set_read_only(False)
             self.chat_view.run_command('append', {
@@ -162,7 +172,7 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
 
             thread = threading.Thread(
                 target=api.stream_response,
-                args=(code, question, handler.append_chunk)
+                args=(handler.append_chunk, chat_history.get_messages(api_format=True))
             )
             thread.start()
 
