@@ -1,6 +1,7 @@
 {
     // Your Anthropic API key from https://console.anthropic.com/settings/keys
     "api_key": "",
+    "max_tokens": "4000",
     // Claude model to use.
     //
     // https://docs.anthropic.com/en/docs/about-claude/models#model-comparison-table
