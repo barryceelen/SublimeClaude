@@ -11,7 +11,7 @@
     // versions (e.g., claude-3-5-sonnet-20241022) in production applications to ensure consistent
     // behavior.
     //
-    // Note that a 'Claude: Set Model' command exists that allows you to update the model that is
+    // Note that a 'Claude: Switch Model' command exists that allows you to update the model that is
     // used on the fly via the command palette.
     //
     "model": "claude-3-opus-latest"

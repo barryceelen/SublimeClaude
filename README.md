@@ -17,7 +17,7 @@ Type "Ask Claude" in the command palette or find the "Ask Claude" menu item in t
 - Show Chat History
 - Clear History
 - Export/Import History
-- Set Model
+- Switch Model
 
 ## Installation
 
