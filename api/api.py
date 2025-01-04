@@ -3,7 +3,7 @@ import json
 import urllib.request
 import urllib.parse
 import urllib.error
-from ..constants import ANTHROPIC_VERSION, DEFAULT_MODEL, MAX_TOKENS, SETTINGS_FILE
+from ..constants import ANTHROPIC_VERSION, DEFAULT_MODEL, SETTINGS_FILE
 
 class ClaudeAPI:
     BASE_URL = 'https://api.anthropic.com/v1/'
@@ -11,7 +11,6 @@ class ClaudeAPI:
     def __init__(self):
         self.settings = sublime.load_settings(SETTINGS_FILE)
         self.api_key = self.settings.get('api_key')
-        self.max_tokens = self.settings.get('max_tokens', MAX_TOKENS)
         self.model = self.settings.get('model', DEFAULT_MODEL)
 
     def stream_response(self, chunk_callback, messages):
@@ -34,7 +33,6 @@ class ClaudeAPI:
                 'model': self.model,
                 'messages': messages,
                 'stream': True,
-                'max_tokens': MAX_TOKENS
             }
 
             req = urllib.request.Request(
