@@ -66,6 +66,22 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
         handler = ClaudeInputHandler.get_instance()
         handler.store_text(question)
         handler.history_pos = -1
+
+        # Create chat panel only when question is submitted
+        if not self.create_chat_panel():
+            return
+
+        # Check API key after creating chat panel
+        if not self.settings.get('api_key'):
+            self.chat_view.set_read_only(False)
+            self.chat_view.run_command('append', {
+                'characters': "⚠️ Claude API key not configured. Please set your API key in SublimeClaude.sublime-settings\n",
+                'force': True,
+                'scroll_to_end': True
+            })
+            self.chat_view.set_read_only(True)
+            return
+
         self.send_to_claude(code, question)
 
     def run(self, edit, code=None, question=None):
@@ -78,21 +94,10 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
                 sublime.error_message(f"{PLUGIN_NAME} Error: No active window found")
                 return
 
-            chat_panel = self.create_chat_panel()
-            if not chat_panel:
-                return
-
-            if not self.settings.get('api_key'):
-                self.chat_view.set_read_only(False)
-                self.chat_view.run_command('append', {
-                    'characters': "⚠️ Claude API key not configured. Please set your API key in SublimeClaude.sublime-settings\n",
-                    'force': True,
-                    'scroll_to_end': True
-                })
-                self.chat_view.set_read_only(True)
-                return
-
             if code is not None and question is not None:
+                # Create chat panel for direct calls with code and question
+                if not self.create_chat_panel():
+                    return
                 self.send_to_claude(code, question)
                 return
 
