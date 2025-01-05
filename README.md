@@ -1,4 +1,4 @@
-# Claudette
+# Claudette – Claude integration for Sublime Text
 
 A [Sublime Text](http://www.sublimetext.com) package for interacting with Anthropic's Claude API. The package is for the most part written by Claude itself.
 
