@@ -1,12 +1,12 @@
 import sublime
 
-class ClaudeInputHandler:
+class ClaudetteInputHandler:
     _instance = None
 
     @classmethod
     def get_instance(cls):
         if not cls._instance:
-            cls._instance = ClaudeInputHandler()
+            cls._instance = ClaudetteInputHandler()
         return cls._instance
 
     def __init__(self):

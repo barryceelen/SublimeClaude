@@ -1,11 +1,11 @@
 import time
 
-class SublimeClaudeChatHistory:
+class ClaudetteChatHistory:
     _instance = None
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(SublimeClaudeChatHistory, cls).__new__(cls)
+            cls._instance = super(ClaudetteChatHistory, cls).__new__(cls)
             cls._instance.messages = []
         return cls._instance
 

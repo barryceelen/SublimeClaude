@@ -1,9 +1,9 @@
-from ..chat.chat_history import SublimeClaudeChatHistory
+from ..chat.chat_history import ClaudetteChatHistory
 
 class StreamingResponseHandler:
     def __init__(self, view):
         self.view = view
-        self.chat_history = SublimeClaudeChatHistory()
+        self.chat_history = ClaudetteChatHistory()
         self.current_response = ""  # Initialize this to prevent the AttributeError
 
     def append_chunk(self, chunk):

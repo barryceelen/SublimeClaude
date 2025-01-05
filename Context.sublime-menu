@@ -2,6 +2,6 @@
 	{
 		"id": "claude-context",
 		"caption": "Ask Claude",
-		"command": "sublime_claude_ask_question"
+		"command": "claudette_ask_question"
 	}
 ]

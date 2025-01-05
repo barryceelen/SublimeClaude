@@ -1,7 +1,7 @@
 import sublime_plugin
-from ..input.handler import ClaudeInputHandler
+from ..input.handler import ClaudetteInputHandler
 
-class SublimeClaudeInputHistoryCommand(sublime_plugin.TextCommand):
+class ClaudetteInputHistoryCommand(sublime_plugin.TextCommand):
     def run(self, edit, forward=False):
-        handler = ClaudeInputHandler.get_instance()
+        handler = ClaudetteInputHandler.get_instance()
         handler.navigate_history(forward)

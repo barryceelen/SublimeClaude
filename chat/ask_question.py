@@ -4,10 +4,10 @@ import threading
 from ..constants import PLUGIN_NAME, SETTINGS_FILE
 from ..api.api import ClaudeAPI
 from ..api.handler import StreamingResponseHandler
-from ..input.handler import ClaudeInputHandler
-from .chat_history import SublimeClaudeChatHistory
+from ..input.handler import ClaudetteInputHandler
+from .chat_history import ClaudetteChatHistory
 
-class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
+class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
     def __init__(self, view):
         super().__init__(view)
         self.chat_view = None
@@ -63,7 +63,7 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             return None
 
     def handle_input(self, code, question):
-        handler = ClaudeInputHandler.get_instance()
+        handler = ClaudetteInputHandler.get_instance()
         handler.store_text(question)
         handler.history_pos = -1
 
@@ -75,7 +75,7 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
         if not self.settings.get('api_key'):
             self.chat_view.set_read_only(False)
             self.chat_view.run_command('append', {
-                'characters': "⚠️ Claude API key not configured. Please set your API key in SublimeClaude.sublime-settings\n",
+                'characters': "⚠️ Claude API key not configured. Please set your API key in Claudette.sublime-settings\n",
                 'force': True,
                 'scroll_to_end': True
             })
@@ -117,9 +117,9 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
                 sublime.error_message(f"{PLUGIN_NAME} Error: Could not create input panel")
                 return
 
-            view.settings().set("is_claude_input", True)
+            view.settings().set("is_claudette_input", True)
 
-            handler = ClaudeInputHandler.get_instance()
+            handler = ClaudetteInputHandler.get_instance()
             handler.input_view = view
 
         except Exception as e:
@@ -139,7 +139,7 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
 
             message += "### Claude's Response\n\n"
 
-            chat_history = SublimeClaudeChatHistory()
+            chat_history = ClaudetteChatHistory()
 
             user_message = question
             if code.strip():

@@ -3,7 +3,7 @@ import sublime_plugin
 import json
 import os
 import time
-from .chat_history import SublimeClaudeChatHistory
+from .chat_history import ClaudetteChatHistory
 from ..constants import PLUGIN_NAME
 
 # Valid message roles for Claude
@@ -28,10 +28,10 @@ def validate_message(message):
         return False
     return True
 
-class SublimeClaudeExportChatHistoryCommand(sublime_plugin.WindowCommand):
+class ClaudetteExportChatHistoryCommand(sublime_plugin.WindowCommand):
     def run(self):
         try:
-            chat_history = SublimeClaudeChatHistory()
+            chat_history = ClaudetteChatHistory()
             messages = chat_history.get_messages()
 
             # Create an export object with metadata
@@ -70,7 +70,7 @@ class SublimeClaudeExportChatHistoryCommand(sublime_plugin.WindowCommand):
             print("{0} Error saving chat history: {1}".format(PLUGIN_NAME, str(e)))
             sublime.error_message("Could not save chat history")
 
-class SublimeClaudeImportChatHistoryCommand(sublime_plugin.WindowCommand):
+class ClaudetteImportChatHistoryCommand(sublime_plugin.WindowCommand):
     def run(self):
         try:
             # Show open dialog
@@ -135,7 +135,7 @@ class SublimeClaudeImportChatHistoryCommand(sublime_plugin.WindowCommand):
                 raise ValueError("No valid messages found in import file")
 
             # Import valid messages into chat history
-            chat_history = SublimeClaudeChatHistory()
+            chat_history = ClaudetteChatHistory()
 
             for message in valid_messages:
                 chat_history.add_message(message['role'], message['content'])

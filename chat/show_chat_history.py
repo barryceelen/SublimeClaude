@@ -2,9 +2,9 @@ import sublime
 import sublime_plugin
 import time
 from ..constants import PLUGIN_NAME
-from .chat_history import SublimeClaudeChatHistory
+from .chat_history import ClaudetteChatHistory
 
-class SublimeClaudeShowChatHistoryCommand(sublime_plugin.TextCommand):
+class ClaudetteShowChatHistoryCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         try:
             window = self.view.window()
@@ -14,7 +14,7 @@ class SublimeClaudeShowChatHistoryCommand(sublime_plugin.TextCommand):
                 return
 
             # Get the chat history
-            chat_history = SublimeClaudeChatHistory()
+            chat_history = ClaudetteChatHistory()
             messages = chat_history.get_messages()
 
             # Create new view for history

@@ -3,9 +3,9 @@
         "id": "tools",
         "children": [
             {
-                "id": "claude",
+                "id": "claudette_ask_claude",
                 "caption": "Ask Claude",
-                "command": "sublime_claude_ask_question"
+                "command": "claudette_ask_question"
             }
         ]
     },
@@ -18,12 +18,12 @@
                 "id": "package-settings",
                 "children": [
                     {
-                        "caption": "Claude",
+                        "caption": "Claudette",
                         "children": [
                             {
                                 "command": "open_file",
                                 "args": {
-                                    "file": "${packages}/User/SublimeClaude.sublime-settings"
+                                    "file": "${packages}/User/Claudette.sublime-settings"
                                 },
                                 "caption": "Settings"
                             }

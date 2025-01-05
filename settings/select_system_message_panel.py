@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 from ..constants import SETTINGS_FILE
 
-class SublimeClaudeSelectSystemMessagePanelCommand(sublime_plugin.WindowCommand):
+class ClaudetteSelectSystemMessagePanelCommand(sublime_plugin.WindowCommand):
     """
     A command to switch between different system messages.
 
@@ -32,7 +32,7 @@ class SublimeClaudeSelectSystemMessagePanelCommand(sublime_plugin.WindowCommand)
                 if index == len(panel_items) - 1:
                     # Open package settings if the last item (settings item) was selected
                     self.window.run_command("edit_settings", {
-                        "base_file": "${packages}/SublimeClaude/SublimeClaude.sublime-settings",
+                        "base_file": "${packages}/Claudette/Claudette.sublime-settings",
                         "default": "{\n\t$0\n}\n"
                     })
                 else:
