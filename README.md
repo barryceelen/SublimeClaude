@@ -8,19 +8,25 @@ Type "Ask Claude" in the command palette or find the "Ask Claude" menu item in t
 
 - Chat with Claude
 - Send along selected code/text for context
-- View, export and import chat history
 - Configure which mode to use
+- Configure a system message
+- Export the current chat as a JSON file for later reference
+- Import a chat JSON file to continue the discussion where you left off
+- View the current chat history
 
 ## Available commands
 
 - Ask Question
+- Clear Chat History
 - Show Chat History
-- Clear History
-- Export/Import History
+- Export Chat History
+- Import Chat History
 - Switch Model
+- Switch System Message
 
 ## Installation
 
-1. Clone the Gihub repository to your Packages directory
+1. In Sublime Text, add this repository via the "Package Control: Add Repository" command (use https://github.com/barryceelen/SublimeClaude)
+2. Once the repository is added, use the Package Control: Install Package" command to install the `SublimeClaude` package
 2. Get an API key from [Anthropic](https://console.anthropic.com/)
-3. Configure API key in `Preferences > Package Settings > Sublime Claude > Settings`:
+3. Configure API key in `Preferences > Package Settings > Sublime Claude > Settings`
