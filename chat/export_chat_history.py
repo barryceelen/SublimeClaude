@@ -88,11 +88,9 @@ class SublimeClaudeImportChatHistoryCommand(sublime_plugin.WindowCommand):
             print("{0} Error importing chat history: {1}".format(PLUGIN_NAME, str(e)))
             sublime.error_message("Could not import chat history")
 
-    def load_history(self, paths):
-        if not paths or not paths[0]:
+    def load_history(self, path):
+        if not path:
             return
-
-        path = paths[0]
 
         # Check if the selected file is a JSON file
         if not path.lower().endswith('.json'):
@@ -138,7 +136,9 @@ class SublimeClaudeImportChatHistoryCommand(sublime_plugin.WindowCommand):
 
             # Import valid messages into chat history
             chat_history = SublimeClaudeChatHistory()
-            chat_history.set_messages(valid_messages)
+
+            for message in valid_messages:
+                chat_history.add_message(message['role'], message['content'])
 
             status_message = "{0}: Chat history imported successfully".format(PLUGIN_NAME)
             if invalid_count > 0:
