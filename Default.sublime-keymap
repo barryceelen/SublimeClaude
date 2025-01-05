@@ -1,23 +1,23 @@
 // https://www.sublimetext.com/docs/key_bindings.html
 [
-    {
-        "keys": ["super+k", "super+c"],
-        "command": "sublime_claude_ask_question"
-    },
-    {
-        "keys": ["up"],
-        "command": "sublime_claude_input_history",
-        "args": {"forward": false},
-        "context": [
-            {"key": "input_history", "operator": "equal", "operand": true}
-        ]
-    },
-    {
-        "keys": ["down"],
-        "command": "sublime_claude_input_history",
-        "args": {"forward": true},
-        "context": [
-            {"key": "input_history", "operator": "equal", "operand": true}
-        ]
-    }
+	{
+		"keys": ["super+k", "super+c"],
+		"command": "sublime_claude_ask_question"
+	},
+	{
+		"keys": ["up"],
+		"command": "sublime_claude_input_history",
+		"args": {"forward": false},
+		"context": [
+			{"key": "input_history", "operator": "equal", "operand": true}
+		]
+	},
+	{
+		"keys": ["down"],
+		"command": "sublime_claude_input_history",
+		"args": {"forward": true},
+		"context": [
+			{"key": "input_history", "operator": "equal", "operand": true}
+		]
+	}
 ]
