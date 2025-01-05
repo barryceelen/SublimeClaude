@@ -151,6 +151,8 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             # Get the singleton instance
             chat_history = SublimeClaudeChatHistory()
 
+            messages = chat_history.get_messages(api_format=True)
+
             # Add user message to history
             user_message = question
             if code.strip():

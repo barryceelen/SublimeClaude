@@ -14,5 +14,11 @@
     // Note that a 'Claude: Switch Model' command exists that allows you to update the model that is
     // used on the fly via the command palette.
     //
-    "model": "claude-3-opus-latest"
+    "model": "claude-3-opus-latest",
+    "system_messages": [
+        "You are a helpful AI assistant focused on programming help.",
+        "You are a helpful AI assistant focused on writing and documentation.",
+        "You are a helpful AI assistant ready to help with any task."
+    ],
+    "default_system_message_index": 0
 }

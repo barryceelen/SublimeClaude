@@ -37,6 +37,18 @@ class ClaudeAPI:
                 'max_tokens': MAX_TOKENS
             }
 
+            system_messages = self.settings.get('system_messages', [])
+            default_index = self.settings.get('default_system_message_index', 0)
+
+            if (system_messages and
+                isinstance(system_messages, list) and
+                isinstance(default_index, int) and
+                0 <= default_index < len(system_messages)):
+
+                selected_message = system_messages[default_index]
+                if selected_message and selected_message.strip():
+                    data['system'] = selected_message
+
             req = urllib.request.Request(
                 urllib.parse.urljoin(self.BASE_URL, 'messages'),
                 data=json.dumps(data).encode('utf-8'),
