@@ -4,5 +4,6 @@ from .chat.show_chat_history import SublimeClaudeShowChatHistoryCommand
 from .chat.export_chat_history import SublimeClaudeExportChatHistoryCommand
 from .chat.export_chat_history import SublimeClaudeImportChatHistoryCommand
 from .input.history import SublimeClaudeInputHistoryCommand
-from .settings.set_model import SublimeClaudeSetModelCommand
+from .settings.select_model_panel import SublimeClaudeSelectModelPanelCommand
+from .settings.select_system_message_panel import SublimeClaudeSelectSystemMessagePanelCommand
 from .input.listener import SublimeClaudeInputHistoryListener

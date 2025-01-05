@@ -3,7 +3,7 @@ import sublime_plugin
 from ..api.api import ClaudeAPI
 from ..constants import SETTINGS_FILE
 
-class SublimeClaudeSetModelCommand(sublime_plugin.WindowCommand):
+class SublimeClaudeSelectModelPanelCommand(sublime_plugin.WindowCommand):
     """
     A command to switch between different Claude AI models.
 

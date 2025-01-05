@@ -5,7 +5,7 @@
     },
     {
         "caption": "Claude: Switch Model",
-        "command": "sublime_claude_set_model"
+        "command": "sublime_claude_select_model_panel"
     },
     {
         "caption": "Claude: Clear Chat History",
@@ -22,5 +22,9 @@
     {
         "caption": "Claude: Import Chat History",
         "command": "sublime_claude_import_chat_history"
-    }
+    },
+    {
+        "caption": "Claude: Switch System Message",
+        "command": "sublime_claude_select_system_message_panel"
+    },
 ]
