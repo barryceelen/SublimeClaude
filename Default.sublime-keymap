@@ -1,7 +1,7 @@
 // https://www.sublimetext.com/docs/key_bindings.html
 [
 	{
-		"keys": ["super+k", "super+c"],
+		"keys": ["super+c", "super+l"],
 		"command": "claudette_ask_question"
 	},
 	{
