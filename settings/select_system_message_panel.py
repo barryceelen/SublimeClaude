@@ -24,7 +24,7 @@ class SublimeClaudeSelectSystemMessagePanelCommand(sublime_plugin.WindowCommand)
             panel_items.append(display_msg)
 
         # Add the appropriate settings item based on whether system messages exist
-        settings_item = "Manage system messages" if system_messages else "Add new system message"
+        settings_item = "→ Manage system messages" if system_messages else "＋ Add new system message"
         panel_items.append(settings_item)
 
         def on_select(index):
