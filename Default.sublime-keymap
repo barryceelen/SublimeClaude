@@ -3,21 +3,5 @@
 	{
 		"keys": ["super+c", "super+l"],
 		"command": "claudette_ask_question"
-	},
-	{
-		"keys": ["up"],
-		"command": "claudette_input_history",
-		"args": {"forward": false},
-		"context": [
-			{"key": "input_history", "operator": "equal", "operand": true}
-		]
-	},
-	{
-		"keys": ["down"],
-		"command": "claudette_input_history",
-		"args": {"forward": true},
-		"context": [
-			{"key": "input_history", "operator": "equal", "operand": true}
-		]
 	}
 ]

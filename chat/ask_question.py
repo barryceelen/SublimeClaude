@@ -4,7 +4,6 @@ import threading
 from ..constants import PLUGIN_NAME, SETTINGS_FILE
 from ..api.api import ClaudeAPI
 from ..api.handler import StreamingResponseHandler
-from ..input.handler import ClaudetteInputHandler
 from .chat_history import ClaudetteChatHistory
 
 class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
@@ -63,10 +62,6 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
             return None
 
     def handle_input(self, code, question):
-        handler = ClaudetteInputHandler.get_instance()
-        handler.store_text(question)
-        handler.history_pos = -1
-
         # Create chat panel only when question is submitted
         if not self.create_chat_panel():
             return
@@ -116,11 +111,6 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
                 print(f"{PLUGIN_NAME} Error: Could not create input panel")
                 sublime.error_message(f"{PLUGIN_NAME} Error: Could not create input panel")
                 return
-
-            view.settings().set("is_claudette_input", True)
-
-            handler = ClaudetteInputHandler.get_instance()
-            handler.input_view = view
 
         except Exception as e:
             print(f"{PLUGIN_NAME} Error in run command: {str(e)}")
