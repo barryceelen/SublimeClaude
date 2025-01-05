@@ -12,10 +12,14 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
         super().__init__(view)
         self.chat_view = None
         self.settings = None
+        self._view = view
 
     def load_settings(self):
         if not self.settings:
             self.settings = sublime.load_settings(SETTINGS_FILE)
+
+    def get_window(self):
+        return self._view.window() or sublime.active_window()
 
     def is_visible(self):
         return True
@@ -25,26 +29,24 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
 
     def create_chat_panel(self):
         try:
-            window = self.view.window()
+            window = self.get_window()
             if not window:
-                print("{0} Error: No active window found".format(PLUGIN_NAME))
-                sublime.error_message("{0} Error: No active window found".format(PLUGIN_NAME))
+                print(f"{PLUGIN_NAME} Error: No active window found")
+                sublime.error_message(f"{PLUGIN_NAME} Error: No active window found")
                 return None
 
             chat_view = None
 
-            # Find existing chat view
             for view in window.views():
                 if view.name() == "Claude Chat":
                     chat_view = view
                     break
 
-            # Create new if not found
             if not chat_view:
                 chat_view = window.new_file()
                 if not chat_view:
-                    print("{0} Error: Could not create new file".format(PLUGIN_NAME))
-                    sublime.error_message("{0} Error: Could not create new file".format(PLUGIN_NAME))
+                    print(f"{PLUGIN_NAME} Error: Could not create new file")
+                    sublime.error_message(f"{PLUGIN_NAME} Error: Could not create new file")
                     return None
 
                 chat_view.set_name("Claude Chat")
@@ -53,13 +55,11 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
                 chat_view.set_read_only(True)
 
             self.chat_view = chat_view
-            self.load_settings()
-
             return self.chat_view
 
         except Exception as e:
-            print("{0} Error creating chat panel: {1}".format(PLUGIN_NAME, str(e)))
-            sublime.error_message("{0} Error: Could not create chat panel".format(PLUGIN_NAME))
+            print(f"{PLUGIN_NAME} Error creating chat panel: {str(e)}")
+            sublime.error_message(f"{PLUGIN_NAME} Error: Could not create chat panel")
             return None
 
     def handle_input(self, code, question):
@@ -72,10 +72,10 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
         try:
             self.load_settings()
 
-            # Verify we have a valid window before proceeding
-            if not self.view.window():
-                print("{0} Error: No active window found".format(PLUGIN_NAME))
-                sublime.error_message("{0} Error: No active window found".format(PLUGIN_NAME))
+            window = self.get_window()
+            if not window:
+                print(f"{PLUGIN_NAME} Error: No active window found")
+                sublime.error_message(f"{PLUGIN_NAME} Error: No active window found")
                 return
 
             chat_panel = self.create_chat_panel()
@@ -85,7 +85,7 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             if not self.settings.get('api_key'):
                 self.chat_view.set_read_only(False)
                 self.chat_view.run_command('append', {
-                    'characters': "⚠️ Claude API key not configured. Please set your API key in `${packages}/User/SublimeClaude.sublime-settings`\n\nExample configuration:\n```json\n{\n    \"api_key\": \"YOUR_API_KEY\",\n    \"model\": \"claude-3-opus-20240229\"\n}\n```\n",
+                    'characters': "⚠️ Claude API key not configured. Please set your API key in SublimeClaude.sublime-settings\n",
                     'force': True,
                     'scroll_to_end': True
                 })
@@ -99,13 +99,6 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             sel = self.view.sel()
             selected_text = self.view.substr(sel[0]) if sel else ''
 
-            # Verify window again before showing input panel
-            window = self.view.window()
-            if not window:
-                print("{0} Error: No active window found".format(PLUGIN_NAME))
-                sublime.error_message("{0} Error: No active window found".format(PLUGIN_NAME))
-                return
-
             view = window.show_input_panel(
                 "Ask Claude:",
                 "",
@@ -115,12 +108,9 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             )
 
             if not view:
-                print("{0} Error: Could not create input panel".format(PLUGIN_NAME))
-                sublime.error_message("{0} Error: Could not create input panel".format(PLUGIN_NAME))
+                print(f"{PLUGIN_NAME} Error: Could not create input panel")
+                sublime.error_message(f"{PLUGIN_NAME} Error: Could not create input panel")
                 return
-
-            model = self.settings.get('model')
-            sublime.status_message('Model: {}'.format(model or "Not set"))
 
             view.settings().set("is_claude_input", True)
 
@@ -128,35 +118,27 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             handler.input_view = view
 
         except Exception as e:
-            print("{0} Error in run command: {1}".format(PLUGIN_NAME, str(e)))
-            sublime.error_message("{0} Error: Could not process request".format(PLUGIN_NAME))
+            print(f"{PLUGIN_NAME} Error in run command: {str(e)}")
+            sublime.error_message(f"{PLUGIN_NAME} Error: Could not process request")
 
     def send_to_claude(self, code, question):
         try:
             if not self.chat_view:
                 return
 
-            message = '';
-
-            if self.chat_view.size() > 0:
-                message += "\n\n";
-
-            message += "## Question\n\n{0}\n\n".format(question)
+            message = "\n\n" if self.chat_view.size() > 0 else ""
+            message += f"## Question\n\n{question}\n\n"
 
             if code.strip():
-                message += "### Selected Code\n\n```\n{0}\n```\n\n".format(code)
+                message += f"### Selected Code\n\n```\n{code}\n```\n\n"
 
             message += "### Claude's Response\n\n"
 
-            # Get the singleton instance
             chat_history = SublimeClaudeChatHistory()
 
-            messages = chat_history.get_messages(api_format=True)
-
-            # Add user message to history
             user_message = question
             if code.strip():
-                user_message = "{0}\n\nCode:\n{1}".format(question, code)
+                user_message = f"{question}\n\nCode:\n{code}"
             chat_history.add_message("user", user_message)
 
             self.chat_view.set_read_only(False)
@@ -179,5 +161,5 @@ class SublimeClaudeAskQuestionCommand(sublime_plugin.TextCommand):
             thread.start()
 
         except Exception as e:
-            print("{0} Error sending to Claude: {1}".format(PLUGIN_NAME, str(e)))
-            sublime.error_message("{0} Error: Could not send message".format(PLUGIN_NAME))
+            print(f"{PLUGIN_NAME} Error sending to Claude: {str(e)}")
+            sublime.error_message(f"{PLUGIN_NAME} Error: Could not send message")
