@@ -48,10 +48,14 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
                     sublime.error_message(f"{PLUGIN_NAME} Error: Could not create new file")
                     return None
 
+                chat_settings = self.settings.get('chat', {})
+                show_line_numbers = chat_settings.get('line_numbers', False)
+
                 chat_view.set_name("Claude Chat")
                 chat_view.set_scratch(True)
                 chat_view.assign_syntax('Packages/Markdown/Markdown.sublime-syntax')
                 chat_view.set_read_only(True)
+                chat_view.settings().set("line_numbers", show_line_numbers)
 
             self.chat_view = chat_view
             return self.chat_view
