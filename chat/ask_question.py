@@ -115,7 +115,10 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
                 self.chat_view.focus()
 
             api = ClaudeAPI()
-            handler = StreamingResponseHandler(self.chat_view.view)
+            handler = StreamingResponseHandler(
+                self.chat_view.view,
+                on_complete=self.chat_view.on_streaming_complete
+            )
 
             thread = threading.Thread(
                 target=api.stream_response,

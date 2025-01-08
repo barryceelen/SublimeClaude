@@ -1,4 +1,6 @@
 import sublime
+import re
+
 from ..constants import PLUGIN_NAME
 
 class ClaudetteChatView:
@@ -6,6 +8,8 @@ class ClaudetteChatView:
         self.window = window
         self.settings = settings
         self.view = None
+        self.phantom_set = None
+        self.existing_button_positions = set()
 
     def create_or_get_view(self):
         """
@@ -72,3 +76,68 @@ class ClaudetteChatView:
     def get_size(self):
         """Returns the size of the chat view content."""
         return self.view.size() if self.view else 0
+
+    def on_streaming_complete(self):
+        """
+        Handles completion of streaming by finding code blocks and adding copy buttons.
+        Only adds buttons where they don't already exist.
+        """
+        if not self.view:
+            return
+
+        # Create phantom set if it doesn't exist
+        if not self.phantom_set:
+            self.phantom_set = sublime.PhantomSet(self.view, "code_block_buttons")
+
+        # Get entire content
+        content = self.view.substr(sublime.Region(0, self.view.size()))
+
+        # Find all code blocks using regex
+        code_blocks = []
+        pattern = r"```[\w]*\n(.*?)```\n"
+        for match in re.finditer(pattern, content, re.DOTALL):
+            code_block = match.group(1).strip()
+            end_pos = match.end() - 1
+            code_blocks.append((code_block, end_pos))
+
+        # Create phantoms for copy buttons
+        phantoms = []
+        new_positions = set()
+
+        for code_block, end_pos in code_blocks:
+            # Check if button already exists at this position
+            if end_pos not in self.existing_button_positions:
+                # Escape any HTML special characters in the code block
+                escaped_code = code_block.replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
+
+                button_html = f'''
+                    <body><a class="claudette-button" href="copy:{escaped_code}">Copy</a></body>
+                '''
+
+                phantom = sublime.Phantom(
+                    sublime.Region(end_pos, end_pos),
+                    button_html,
+                    sublime.LAYOUT_BLOCK,
+                    lambda href, code=code_block: self.handle_copy(code)
+                )
+                phantoms.append(phantom)
+                new_positions.add(end_pos)
+
+        # Update tracked positions
+        self.existing_button_positions = new_positions
+
+        # Update phantom set with all phantoms
+        self.phantom_set.update(phantoms)
+
+    def clear_buttons(self):
+        """
+        Clears all existing copy buttons.
+        """
+        if self.phantom_set:
+            self.phantom_set.update([])
+        self.existing_button_positions.clear()
+
+    def handle_copy(self, code):
+        """Copies code to clipboard when button is clicked."""
+        sublime.set_clipboard(code)
+        sublime.status_message("Code copied to clipboard!")
