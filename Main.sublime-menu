@@ -3,9 +3,43 @@
 		"id": "tools",
 		"children": [
 			{
-				"id": "claudette_ask_claude",
-				"caption": "Ask Claude",
-				"command": "claudette_ask_question"
+				"id": "claudette",
+				"caption": "Claudette",
+				"children": [
+					{
+						"caption": "Ask Question",
+						"command": "claudette_ask_question"
+					},
+					{
+						"caption": "Switch Model",
+						"command": "claudette_select_model_panel"
+					},
+					{
+						"caption": "Switch System Message",
+						"command": "claudette_select_system_message_panel"
+					},
+					{
+						"caption": "Chat History",
+						"children": [
+							{
+								"caption": "Show",
+								"command": "claudette_show_chat_history"
+							},
+							{
+								"caption": "Clear",
+								"command": "claudette_clear_chat_history"
+							},
+							{
+								"caption": "Export",
+								"command": "claudette_export_chat_history"
+							},
+							{
+								"caption": "Import",
+								"command": "claudette_import_chat_history"
+							}
+						]
+					}
+				]
 			}
 		]
 	},
@@ -23,7 +57,7 @@
 								"command": "edit_settings",
 								"args": {
 									"base_file": "${packages}/Claudette/Claudette.sublime-settings",
-								},
+								}
 							}
 						]
 					}
