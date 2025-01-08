@@ -5,6 +5,7 @@ from ..constants import PLUGIN_NAME, SETTINGS_FILE
 from ..api.api import ClaudeAPI
 from ..api.handler import StreamingResponseHandler
 from .chat_history import ClaudetteChatHistory
+from .chat_view import ClaudetteChatView
 
 class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
     def __init__(self, view):
@@ -27,58 +28,26 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
         return True
 
     def create_chat_panel(self):
-        try:
-            window = self.get_window()
-            if not window:
-                print(f"{PLUGIN_NAME} Error: No active window found")
-                sublime.error_message(f"{PLUGIN_NAME} Error: No active window found")
-                return None
-
-            chat_view = None
-
-            for view in window.views():
-                if view.name() == "Claude Chat":
-                    chat_view = view
-                    break
-
-            if not chat_view:
-                chat_view = window.new_file()
-                if not chat_view:
-                    print(f"{PLUGIN_NAME} Error: Could not create new file")
-                    sublime.error_message(f"{PLUGIN_NAME} Error: Could not create new file")
-                    return None
-
-                chat_settings = self.settings.get('chat', {})
-                show_line_numbers = chat_settings.get('line_numbers', False)
-
-                chat_view.set_name("Claude Chat")
-                chat_view.set_scratch(True)
-                chat_view.assign_syntax('Packages/Markdown/Markdown.sublime-syntax')
-                chat_view.set_read_only(True)
-                chat_view.settings().set("line_numbers", show_line_numbers)
-
-            self.chat_view = chat_view
-            return self.chat_view
-
-        except Exception as e:
-            print(f"{PLUGIN_NAME} Error creating chat panel: {str(e)}")
-            sublime.error_message(f"{PLUGIN_NAME} Error: Could not create chat panel")
+        window = self.get_window()
+        if not window:
+            print(f"{PLUGIN_NAME} Error: No active window found")
+            sublime.error_message(f"{PLUGIN_NAME} Error: No active window found")
             return None
 
+        chat_view_manager = ClaudetteChatView(window, self.settings)
+        view = chat_view_manager.create_or_get_view()
+        if view:
+            self.chat_view = chat_view_manager
+        return view
+
     def handle_input(self, code, question):
-        # Create chat panel only when question is submitted
         if not self.create_chat_panel():
             return
 
-        # Check API key after creating chat panel
         if not self.settings.get('api_key'):
-            self.chat_view.set_read_only(False)
-            self.chat_view.run_command('append', {
-                'characters': "⚠️ Claude API key not configured. Please set your API key in Claudette.sublime-settings\n",
-                'force': True,
-                'scroll_to_end': True
-            })
-            self.chat_view.set_read_only(True)
+            self.chat_view.append_text(
+                "⚠️ Claude API key not configured. Please set your API key in Claudette.sublime-settings\n"
+            )
             return
 
         self.send_to_claude(code, question)
@@ -125,7 +94,7 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
             if not self.chat_view:
                 return
 
-            message = "\n\n" if self.chat_view.size() > 0 else ""
+            message = "\n\n" if self.chat_view.get_size() > 0 else ""
             message += f"## Question\n\n{question}\n\n"
 
             if code.strip():
@@ -140,18 +109,13 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
                 user_message = f"{question}\n\nCode:\n{code}"
             chat_history.add_message("user", user_message)
 
-            self.chat_view.set_read_only(False)
-            self.chat_view.run_command('append', {
-                'characters': message,
-                'force': True,
-                'scroll_to_end': True
-            })
+            self.chat_view.append_text(message)
 
-            if self.chat_view.size() > 0:
-                self.chat_view.window().focus_view(self.chat_view)
+            if self.chat_view.get_size() > 0:
+                self.chat_view.focus()
 
             api = ClaudeAPI()
-            handler = StreamingResponseHandler(self.chat_view)
+            handler = StreamingResponseHandler(self.chat_view.view)
 
             thread = threading.Thread(
                 target=api.stream_response,
