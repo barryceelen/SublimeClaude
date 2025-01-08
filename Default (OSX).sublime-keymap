@@ -1,6 +1,6 @@
 [
 	{
-		"keys": ["super+c", "super+l"],
+		"keys": ["super+k", "super+c"],
 		"command": "claudette_ask_question",
 	}
 ]
