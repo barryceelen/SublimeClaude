@@ -34,7 +34,8 @@ class ClaudeAPI:
                 'model': self.model,
                 'messages': messages,
                 'stream': True,
-                'max_tokens': MAX_TOKENS
+                'max_tokens': MAX_TOKENS,
+                'system': 'Please wrap all code examples in a markdown code block and ensure each code block is complete and self-contained.'
             }
 
             system_messages = self.settings.get('system_messages', [])
@@ -47,7 +48,7 @@ class ClaudeAPI:
 
                 selected_message = system_messages[default_index]
                 if selected_message and selected_message.strip():
-                    data['system'] = selected_message
+                    data['system'] = data['system'] + ' ' + selected_message.strip()
 
             req = urllib.request.Request(
                 urllib.parse.urljoin(self.BASE_URL, 'messages'),
