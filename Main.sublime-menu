@@ -22,19 +22,19 @@
 						"caption": "Chat History",
 						"children": [
 							{
-								"caption": "Show",
-								"command": "claudette_show_chat_history"
-							},
-							{
-								"caption": "Clear",
+								"caption": "Clear Chat History",
 								"command": "claudette_clear_chat_history"
 							},
 							{
-								"caption": "Export",
+								"caption": "Show Chat History",
+								"command": "claudette_show_chat_history"
+							},
+							{
+								"caption": "Export Chat History",
 								"command": "claudette_export_chat_history"
 							},
 							{
-								"caption": "Import",
+								"caption": "Import Chat History",
 								"command": "claudette_import_chat_history"
 							}
 						]
