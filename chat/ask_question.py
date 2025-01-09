@@ -34,10 +34,14 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
             sublime.error_message(f"{PLUGIN_NAME} Error: No active window found")
             return None
 
-        chat_view_manager = ClaudetteChatView(window, self.settings)
-        view = chat_view_manager.create_or_get_view()
-        if view:
-            self.chat_view = chat_view_manager
+        try:
+            # Try to get existing instance first
+            self.chat_view = ClaudetteChatView.get_instance()
+        except:
+            # Create new instance if none exists
+            self.chat_view = ClaudetteChatView.get_instance(window, self.settings)
+
+        view = self.chat_view.create_or_get_view()
         return view
 
     def handle_input(self, code, question):

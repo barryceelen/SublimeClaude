@@ -4,12 +4,25 @@ import re
 from ..constants import PLUGIN_NAME
 
 class ClaudetteChatView:
+    _instance = None
+
+    @classmethod
+    def get_instance(cls, window=None, settings=None):
+        if cls._instance is None:
+            if window is None or settings is None:
+                raise ValueError("Window and settings are required for initial creation")
+            cls._instance = cls(window, settings)
+        return cls._instance
+
     def __init__(self, window, settings):
+        if ClaudetteChatView._instance is not None:
+            raise Exception("This class is a singleton!")
         self.window = window
         self.settings = settings
         self.view = None
         self.phantom_set = None
         self.existing_button_positions = set()
+        ClaudetteChatView._instance = self
 
     def create_or_get_view(self):
         """
@@ -77,45 +90,64 @@ class ClaudetteChatView:
         """Returns the size of the chat view content."""
         return self.view.size() if self.view else 0
 
+    def clear(self):
+        """Clears the chat view content and buttons."""
+        if self.view:
+            self.view.set_read_only(False)
+            self.view.run_command('select_all')
+            self.view.run_command('right_delete')
+            self.view.set_read_only(True)
+            self.clear_buttons()
+
+    def clear_buttons(self):
+        """Clears all existing copy buttons."""
+        if self.phantom_set:
+            self.phantom_set.update([])
+        self.existing_button_positions.clear()
+
     def on_streaming_complete(self):
-        """
-        Handles completion of streaming by finding code blocks and adding copy buttons.
-        Only adds buttons where they don't already exist.
-        """
         if not self.view:
             return
 
-        # Create phantom set if it doesn't exist
         if not self.phantom_set:
             self.phantom_set = sublime.PhantomSet(self.view, "code_block_buttons")
 
-        # Get entire content
         content = self.view.substr(sublime.Region(0, self.view.size()))
 
-        # Find all code blocks using regex
+        # Updated regex pattern to better handle code blocks
+        pattern = r"```[\w+]*\n(.*?)\n```"
         code_blocks = []
-        pattern = r"```[\w]*\n(.*?)```\n"
         for match in re.finditer(pattern, content, re.DOTALL):
             code_block = match.group(1).strip()
-            end_pos = match.end() - 1
+            end_pos = match.end()
             code_blocks.append((code_block, end_pos))
 
-        # Create phantoms for copy buttons
         phantoms = []
         new_positions = set()
 
+        # First, collect all existing phantoms that are still valid
+        if self.phantom_set:
+            existing_phantoms = self.phantom_set.phantoms
+            for phantom in existing_phantoms:
+                phantoms.append(phantom)
+                new_positions.add(phantom.region.end())
+
+        # Then add new phantoms for new code blocks
         for code_block, end_pos in code_blocks:
-            # Check if button already exists at this position
-            if end_pos not in self.existing_button_positions:
-                # Escape any HTML special characters in the code block
-                escaped_code = code_block.replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
+            if end_pos not in new_positions:  # Only add if not already exists
+                region = sublime.Region(end_pos, end_pos)
+                escaped_code = (code_block
+                              .replace('&', '&amp;')
+                              .replace('"', '&quot;')
+                              .replace('<', '&lt;')
+                              .replace('>', '&gt;'))
 
                 button_html = f'''
-                    <body><a class="claudette-button" href="copy:{escaped_code}">Copy</a></body>
+                    <a class="copy-button" href="copy:{escaped_code}">Copy</a>
                 '''
 
                 phantom = sublime.Phantom(
-                    sublime.Region(end_pos, end_pos),
+                    region,
                     button_html,
                     sublime.LAYOUT_BLOCK,
                     lambda href, code=code_block: self.handle_copy(code)
@@ -123,21 +155,26 @@ class ClaudetteChatView:
                 phantoms.append(phantom)
                 new_positions.add(end_pos)
 
-        # Update tracked positions
         self.existing_button_positions = new_positions
-
-        # Update phantom set with all phantoms
-        self.phantom_set.update(phantoms)
-
-    def clear_buttons(self):
-        """
-        Clears all existing copy buttons.
-        """
-        if self.phantom_set:
-            self.phantom_set.update([])
-        self.existing_button_positions.clear()
+        if phantoms:
+            self.phantom_set.update(phantoms)
 
     def handle_copy(self, code):
-        """Copies code to clipboard when button is clicked."""
-        sublime.set_clipboard(code)
-        sublime.status_message("Code copied to clipboard!")
+        """
+        Copies code to clipboard when button is clicked.
+        Shows a status message to confirm the copy action.
+        """
+        try:
+            sublime.set_clipboard(code)
+            sublime.status_message("Code copied to clipboard")
+        except Exception as e:
+            print(f"{PLUGIN_NAME} Error copying to clipboard: {str(e)}")
+            sublime.status_message("Error copying code to clipboard")
+
+    def destroy(self):
+        """Cleanup method to be called when the view is being destroyed."""
+        if self.phantom_set:
+            self.phantom_set.update([])  # Clear all phantoms
+        self.existing_button_positions.clear()
+        self.view = None
+        ClaudetteChatView._instance = None
