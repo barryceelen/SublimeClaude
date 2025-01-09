@@ -4,6 +4,7 @@ import urllib.request
 import urllib.parse
 import urllib.error
 from ..constants import ANTHROPIC_VERSION, DEFAULT_MODEL, MAX_TOKENS, SETTINGS_FILE
+from ..statusbar.spinner import Spinner
 
 class ClaudeAPI:
     BASE_URL = 'https://api.anthropic.com/v1/'
@@ -13,6 +14,8 @@ class ClaudeAPI:
         self.api_key = self.settings.get('api_key')
         self.max_tokens = self.settings.get('max_tokens', MAX_TOKENS)
         self.model = self.settings.get('model', DEFAULT_MODEL)
+        self.spinner = Spinner()
+
 
     def stream_response(self, chunk_callback, messages):
         """Stream API response for the given messages."""
@@ -23,7 +26,7 @@ class ClaudeAPI:
             )
 
         try:
-            sublime.status_message('Fetching response from Claude API...')
+            self.spinner.start('Fetching responsek')
             headers = {
                 'x-api-key': self.api_key,
                 'anthropic-version': ANTHROPIC_VERSION,
@@ -91,15 +94,15 @@ class ClaudeAPI:
             except urllib.error.URLError as e:
                 handle_error("[Error] {0}".format(str(e)))
             finally:
-                sublime.status_message('')  # Clear status message
+                self.spinner.stop()
 
         except Exception as e:
             sublime.error_message(str(e))
-            sublime.status_message('')  # Clear status message
+            self.spinner.stop()
 
     def fetch_models(self):
         try:
-            sublime.status_message('Fetching available models from Claude API...')
+            sublime.status_message('Fetching models')
             headers = {
                 'x-api-key': self.api_key,
                 'anthropic-version': ANTHROPIC_VERSION,
