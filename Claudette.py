@@ -12,3 +12,8 @@ from .chat.export_chat_history import ClaudetteExportChatHistoryCommand
 from .chat.export_chat_history import ClaudetteImportChatHistoryCommand
 from .settings.select_model_panel import ClaudetteSelectModelPanelCommand
 from .settings.select_system_message_panel import ClaudetteSelectSystemMessagePanelCommand
+from .statusbar.spinner import Spinner
+
+def plugin_loaded():
+    spinner = Spinner()
+    spinner.start("Claudette", 1000)
