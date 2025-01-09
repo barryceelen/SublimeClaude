@@ -45,16 +45,19 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
         return view
 
     def handle_input(self, code, question):
+        if not question or question.strip() == '':
+            return None
+
         if not self.create_chat_panel():
             return
 
         if not self.settings.get('api_key'):
             self.chat_view.append_text(
-                "⚠️ Claude API key not configured. Please set your API key in Claudette.sublime-settings\n"
+                "A Claude API key is required. Please add your API key via Package Settings > Claudette.\n"
             )
             return
 
-        self.send_to_claude(code, question)
+        self.send_to_claude(code, question.strip())
 
     def run(self, edit, code=None, question=None):
         try:

@@ -16,9 +16,12 @@ class ClaudeAPI:
         self.model = self.settings.get('model', DEFAULT_MODEL)
         self.spinner = Spinner()
 
-
     def stream_response(self, chunk_callback, messages):
         """Stream API response for the given messages."""
+        # Validate messages before proceeding
+        if not messages or not any(msg.get('content', '').strip() for msg in messages):
+            return  # Silently return if messages are empty or contain only whitespace
+
         def handle_error(error_msg):
             sublime.set_timeout(
                 lambda msg=error_msg: chunk_callback(msg),
@@ -33,9 +36,15 @@ class ClaudeAPI:
                 'content-type': 'application/json',
             }
 
+            # Filter out empty messages
+            filtered_messages = [
+                msg for msg in messages
+                if msg.get('content', '').strip()
+            ]
+
             data = {
                 'model': self.model,
-                'messages': messages,
+                'messages': filtered_messages,
                 'stream': True,
                 'max_tokens': MAX_TOKENS,
                 'system': 'Please wrap all code examples in a markdown code block and ensure each code block is complete and self-contained.'
