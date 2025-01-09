@@ -26,7 +26,7 @@ class ClaudeAPI:
             )
 
         try:
-            self.spinner.start('Fetching responsek')
+            self.spinner.start('Fetching response')
             headers = {
                 'x-api-key': self.api_key,
                 'anthropic-version': ANTHROPIC_VERSION,
