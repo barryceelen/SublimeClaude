@@ -109,6 +109,9 @@ class ClaudetteChatView:
         if not self.view:
             return
 
+        # First validate and fix any unclosed code blocks
+        self.validate_and_fix_code_blocks()
+
         if not self.phantom_set:
             self.phantom_set = sublime.PhantomSet(self.view, "code_block_buttons")
 
@@ -178,3 +181,33 @@ class ClaudetteChatView:
         self.existing_button_positions.clear()
         self.view = None
         ClaudetteChatView._instance = None
+
+    def validate_and_fix_code_blocks(self):
+        """
+        Validates and fixes unclosed code blocks in the view content.
+        """
+        if not self.view:
+            return
+
+        # Get full content
+        content = self.view.substr(sublime.Region(0, self.view.size()))
+        lines = content.split('\n')
+        open_blocks = 0
+
+        # Count opening and closing code blocks
+        for line in lines:
+            if line.strip().startswith('```'):
+                if line.strip() == '```':
+                    open_blocks -= 1
+                else:
+                    open_blocks += 1
+
+        # Add closing blocks if needed
+        if open_blocks > 0:
+            self.view.set_read_only(False)
+            self.view.run_command('append', {
+                'characters': '\n' + '```' * open_blocks,
+                'force': True,
+                'scroll_to_end': True
+            })
+            self.view.set_read_only(True)
