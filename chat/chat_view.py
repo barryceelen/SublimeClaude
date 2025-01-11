@@ -34,7 +34,7 @@ class ClaudetteChatView:
         try:
             # Check for existing chat view
             for view in self.window.views():
-                if view.name() == "Claude Chat":
+                if view.settings().get('claudette_is_chat_view', False):
                     self.view = view
                     return self.view
 
@@ -54,6 +54,7 @@ class ClaudetteChatView:
             self.view.assign_syntax('Packages/Markdown/Markdown.sublime-syntax')
             self.view.set_read_only(True)
             self.view.settings().set("line_numbers", show_line_numbers)
+            self.view.settings().set("claudette_is_chat_view", True)
 
             return self.view
 
