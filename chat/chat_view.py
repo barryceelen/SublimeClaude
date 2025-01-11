@@ -1,7 +1,16 @@
 import sublime
 import re
+from typing import List, Tuple, Set
+from dataclasses import dataclass
 
 from ..constants import PLUGIN_NAME
+
+@dataclass
+class CodeBlock:
+    content: str
+    start_pos: int
+    end_pos: int
+    language: str
 
 class ClaudetteChatView:
     _instance = None
@@ -106,58 +115,50 @@ class ClaudetteChatView:
             self.phantom_set.update([])
         self.existing_button_positions.clear()
 
-    def on_streaming_complete(self):
+    def on_streaming_complete(self) -> None:
+        """
+        Improved handling of code blocks and phantom buttons.
+        """
         if not self.view:
             return
 
-        # First validate and fix any unclosed code blocks
         self.validate_and_fix_code_blocks()
 
         if not self.phantom_set:
             self.phantom_set = sublime.PhantomSet(self.view, "code_block_buttons")
 
         content = self.view.substr(sublime.Region(0, self.view.size()))
-
-        # Updated regex pattern to better handle code blocks
-        pattern = r"```[\w+]*\n(.*?)\n```"
-        code_blocks = []
-        for match in re.finditer(pattern, content, re.DOTALL):
-            code_block = match.group(1).strip()
-            end_pos = match.end()
-            code_blocks.append((code_block, end_pos))
+        code_blocks = self.find_code_blocks(content)
 
         phantoms = []
-        new_positions = set()
+        new_positions: Set[int] = set()
 
-        # First, collect all existing phantoms that are still valid
+        # Handle existing phantoms
         if self.phantom_set:
-            existing_phantoms = self.phantom_set.phantoms
-            for phantom in existing_phantoms:
-                phantoms.append(phantom)
-                new_positions.add(phantom.region.end())
+            for phantom in self.phantom_set.phantoms:
+                if phantom.region.end() in self.existing_button_positions:
+                    phantoms.append(phantom)
+                    new_positions.add(phantom.region.end())
 
-        # Then add new phantoms for new code blocks
-        for code_block, end_pos in code_blocks:
-            if end_pos not in new_positions:  # Only add if not already exists
-                region = sublime.Region(end_pos, end_pos)
-                escaped_code = (code_block
-                              .replace('&', '&amp;')
-                              .replace('"', '&quot;')
-                              .replace('<', '&lt;')
-                              .replace('>', '&gt;'))
+        # Add new phantoms
+        for block in code_blocks:
+            if block.end_pos not in new_positions:
+                region = sublime.Region(block.end_pos, block.end_pos)
+                escaped_code = self.escape_html(block.content)
 
-                button_html = f'''
-                    <a class="copy-button" href="copy:{escaped_code}">Copy</a>
-                '''
+                button_html = self.create_button_html(
+                    escaped_code,
+                    block.language
+                )
 
                 phantom = sublime.Phantom(
                     region,
                     button_html,
                     sublime.LAYOUT_BLOCK,
-                    lambda href, code=code_block: self.handle_copy(code)
+                    lambda href, code=block.content: self.handle_copy(code)
                 )
                 phantoms.append(phantom)
-                new_positions.add(end_pos)
+                new_positions.add(block.end_pos)
 
         self.existing_button_positions = new_positions
         if phantoms:
@@ -183,32 +184,81 @@ class ClaudetteChatView:
         self.view = None
         ClaudetteChatView._instance = None
 
-    def validate_and_fix_code_blocks(self):
+    def find_code_blocks(self, content: str) -> List[CodeBlock]:
         """
-        Validates and fixes unclosed code blocks in the view content.
+        Finds all code blocks in the content using improved regex pattern.
+        Returns list of CodeBlock objects with positions and language info.
+        """
+        blocks = []
+        # Updated regex to better handle language specification and edge cases
+        pattern = r"```([\w+]*)\n(.*?)\n```"
+
+        for match in re.finditer(pattern, content, re.DOTALL):
+            language = match.group(1).strip()
+            content = match.group(2).strip()
+            blocks.append(CodeBlock(
+                content=content,
+                start_pos=match.start(),
+                end_pos=match.end(),
+                language=language
+            ))
+        return blocks
+
+    def validate_and_fix_code_blocks(self) -> None:
+        """
+        Improved validation and fixing of code blocks with better edge case handling.
         """
         if not self.view:
             return
 
-        # Get full content
         content = self.view.substr(sublime.Region(0, self.view.size()))
         lines = content.split('\n')
-        open_blocks = 0
+        stack = []
+        fixes_needed = []
 
-        # Count opening and closing code blocks
-        for line in lines:
-            if line.strip().startswith('```'):
-                if line.strip() == '```':
-                    open_blocks -= 1
-                else:
-                    open_blocks += 1
+        for i, line in enumerate(lines):
+            stripped = line.strip()
 
-        # Add closing blocks if needed
-        if open_blocks > 0:
+            if stripped.startswith('```'):
+                if len(stripped) > 3:  # Opening block with language
+                    stack.append((i, stripped[3:].strip()))
+                elif stripped == '```':
+                    if stack:  # Proper closing
+                        stack.pop()
+                    else:  # Orphaned closing marker
+                        fixes_needed.append((i, 'remove'))
+
+        # Handle unclosed blocks
+        if stack:
             self.view.set_read_only(False)
-            self.view.run_command('append', {
-                'characters': '\n' + '```' * open_blocks,
-                'force': True,
-                'scroll_to_end': True
-            })
+            for _, language in stack:
+                self.view.run_command('append', {
+                    'characters': '\n```',
+                    'force': True,
+                    'scroll_to_end': True
+                })
             self.view.set_read_only(True)
+
+    @staticmethod
+    def escape_html(text: str) -> str:
+        """
+        Safely escape HTML special characters.
+        """
+        return (text
+                .replace('&', '&amp;')
+                .replace('"', '&quot;')
+                .replace('<', '&lt;')
+                .replace('>', '&gt;'))
+
+    def create_button_html(self, code: str, language: str = '') -> str:
+        """
+        Creates HTML for the copy button with optional language indicator.
+        """
+        lang_indicator = f' ({language})' if language else ''
+        return f'''
+            <div class="code-block-button">
+                <a class="copy-button" href="copy:{code}">
+                    Copy [{lang_indicator}]
+                </a>
+            </div>
+        '''
