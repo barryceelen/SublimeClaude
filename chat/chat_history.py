@@ -253,7 +253,7 @@ class ClaudetteClearChatHistoryCommand(sublime_plugin.TextCommand):
                 end_point += 2
 
             # Add the message with an icon
-            clear_message = "⚠️ Chat history has been cleared"
+            clear_message = "⚠️ Chat history cleared"
             current_chat_view.insert(edit, end_point, clear_message)
 
             current_chat_view.set_read_only(True)
@@ -261,6 +261,6 @@ class ClaudetteClearChatHistoryCommand(sublime_plugin.TextCommand):
             # Scroll to the end to show the message
             current_chat_view.show(current_chat_view.size())
 
-            sublime.status_message("Claude: Chat history cleared")
+            sublime.status_message("Chat history cleared")
         else:
-            sublime.status_message("Claude: No active chat view found")
+            sublime.status_message("No active chat view found")
