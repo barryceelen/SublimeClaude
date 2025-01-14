@@ -1,6 +1,0 @@
-[
-	{
-		"keys": ["ctrl+k", "ctrl+c"],
-		"command": "claudette_ask_question",
-	}
-]

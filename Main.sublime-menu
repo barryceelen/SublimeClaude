@@ -11,6 +11,10 @@
 						"command": "claudette_ask_question"
 					},
 					{
+						"caption": "Ask Question In New Chat View",
+						"command": "claudette_ask_new_question"
+					},
+					{
 						"caption": "Switch Model",
 						"command": "claudette_select_model_panel"
 					},
