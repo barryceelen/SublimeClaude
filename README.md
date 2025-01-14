@@ -1,5 +1,7 @@
 # Claudette – Claude for Sublime Text
 
+![Claude Chat View](/screenshot.png?raw=true "Ask Claude")
+
 A [Sublime Text](http://www.sublimetext.com) package for interacting with the Anthropic Claude API. The package is for the most part written by Claude AI itself.
 
 Type "Ask Claude" in the command palette or find the "Ask Claude" item in the "Tools" menu or in the right-click context menu to ask a question. Any selected text in the current file will be sent along to the Anthropic Claude API. Note that a Claude API key is required.
@@ -71,4 +73,3 @@ For Linux and Windows:
 2. Get an API key from [Anthropic](https://console.anthropic.com/)
 3. Configure API key in `Preferences > Package Settings > Claudette > Settings`
 
-![Claude Chat View](/screenshot.png?raw=true "Ask Claude")
