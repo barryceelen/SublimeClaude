@@ -33,8 +33,8 @@ class ClaudetteChatView:
         self.window = window
         self.settings = settings
         self.view = None
-        self.phantom_set = None
-        self.existing_button_positions = set()
+        self.phantom_sets = {}  # Store phantom sets per view
+        self.existing_button_positions = {}  # Store positions per view
 
     def create_or_get_view(self):
         """
@@ -84,6 +84,24 @@ class ClaudetteChatView:
             print(f"{PLUGIN_NAME} Error creating chat panel: {str(e)}")
             sublime.error_message(f"{PLUGIN_NAME} Error: Could not create chat panel")
             return None
+
+    def get_phantom_set(self, view):
+        """
+        Gets or creates a phantom set for the specific view.
+        """
+        view_id = view.id()
+        if view_id not in self.phantom_sets:
+            self.phantom_sets[view_id] = sublime.PhantomSet(view, f"code_block_buttons_{view_id}")
+        return self.phantom_sets[view_id]
+
+    def get_button_positions(self, view):
+        """
+        Gets or creates a set of button positions for the specific view.
+        """
+        view_id = view.id()
+        if view_id not in self.existing_button_positions:
+            self.existing_button_positions[view_id] = set()
+        return self.existing_button_positions[view_id]
 
     def get_conversation_history(self):
         """
@@ -171,22 +189,26 @@ class ClaudetteChatView:
             self.view.settings().set('claudette_conversation_json', '[]')
 
     def clear_buttons(self):
-        """Clears all existing copy buttons."""
-        if self.phantom_set:
-            self.phantom_set.update([])
-        self.existing_button_positions.clear()
+        """Clears all existing copy buttons for the current view."""
+        if self.view:
+            view_id = self.view.id()
+            if view_id in self.phantom_sets:
+                self.phantom_sets[view_id].update([])
+            if view_id in self.existing_button_positions:
+                self.existing_button_positions[view_id].clear()
 
     def on_streaming_complete(self) -> None:
         """
-        Improved handling of code blocks and phantom buttons.
+        Improved handling of code blocks and phantom buttons with view-specific tracking.
         """
         if not self.view:
             return
 
         self.validate_and_fix_code_blocks()
 
-        if not self.phantom_set:
-            self.phantom_set = sublime.PhantomSet(self.view, "code_block_buttons")
+        # Get or create the phantom set for this specific view
+        phantom_set = self.get_phantom_set(self.view)
+        button_positions = self.get_button_positions(self.view)
 
         content = self.view.substr(sublime.Region(0, self.view.size()))
         code_blocks = self.find_code_blocks(content)
@@ -195,11 +217,10 @@ class ClaudetteChatView:
         new_positions: Set[int] = set()
 
         # Handle existing phantoms
-        if self.phantom_set:
-            for phantom in self.phantom_set.phantoms:
-                if phantom.region.end() in self.existing_button_positions:
-                    phantoms.append(phantom)
-                    new_positions.add(phantom.region.end())
+        for phantom in phantom_set.phantoms:
+            if phantom.region.end() in button_positions:
+                phantoms.append(phantom)
+                new_positions.add(phantom.region.end())
 
         # Add new phantoms
         for block in code_blocks:
@@ -221,9 +242,10 @@ class ClaudetteChatView:
                 phantoms.append(phantom)
                 new_positions.add(block.end_pos)
 
-        self.existing_button_positions = new_positions
+        # Update the button positions for this view
+        self.existing_button_positions[self.view.id()] = new_positions
         if phantoms:
-            self.phantom_set.update(phantoms)
+            phantom_set.update(phantoms)
 
     def handle_copy(self, code):
         """
@@ -237,14 +259,20 @@ class ClaudetteChatView:
             sublime.status_message("Error copying code to clipboard")
 
     def destroy(self):
-        """Cleanup method to be called when the view is being destroyed."""
-        if self.phantom_set:
-            self.phantom_set.update([])
-        self.existing_button_positions.clear()
+        """Cleanup method with improved phantom management."""
+        if self.view:
+            view_id = self.view.id()
+            if view_id in self.phantom_sets:
+                self.phantom_sets[view_id].update([])
+                del self.phantom_sets[view_id]
+            if view_id in self.existing_button_positions:
+                del self.existing_button_positions[view_id]
+
         if self.window:
             window_id = self.window.id()
             if window_id in self._instances:
                 del self._instances[window_id]
+
         self.view = None
 
     def find_code_blocks(self, content: str) -> List[CodeBlock]:

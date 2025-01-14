@@ -185,3 +185,43 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
         except Exception as e:
             print(f"{PLUGIN_NAME} Error sending to Claude: {str(e)}")
             sublime.error_message(f"{PLUGIN_NAME} Error: Could not send message")
+
+
+class ClaudetteAskNewQuestionCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        try:
+            # Get the current view and window
+            window = self.view.window() or sublime.active_window()
+            if not window:
+                print(f"{PLUGIN_NAME} Error: No active window found")
+                sublime.error_message(f"{PLUGIN_NAME} Error: No active window found")
+                return
+
+            # Create an instance of ClaudetteAskQuestionCommand
+            ask_command = ClaudetteAskQuestionCommand(self.view)
+            ask_command.load_settings()
+
+            # Force creation of a new chat view
+            if not ask_command.create_chat_panel(force_new=True):
+                return
+
+            # Show input panel for the question
+            view = window.show_input_panel(
+                "Ask Claude (New Chat):",
+                "",
+                lambda q: ask_command.handle_input(
+                    self.view.substr(self.view.sel()[0]) if self.view.sel() else '',
+                    q
+                ),
+                None,
+                None
+            )
+
+            if not view:
+                print(f"{PLUGIN_NAME} Error: Could not create input panel")
+                sublime.error_message(f"{PLUGIN_NAME} Error: Could not create input panel")
+                return
+
+        except Exception as e:
+            print(f"{PLUGIN_NAME} Error in run command: {str(e)}")
+            sublime.error_message(f"{PLUGIN_NAME} Error: Could not process request")

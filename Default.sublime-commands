@@ -4,6 +4,10 @@
 		"command": "claudette_ask_question"
 	},
 	{
+	    "caption": "Claudette: Ask Question In New Chat View",
+	    "command": "claudette_ask_new_question"
+	},
+	{
 		"caption": "Claude: Clear Chat History",
 		"command": "claudette_clear_chat_history"
 	},

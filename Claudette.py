@@ -8,13 +8,15 @@
 import sublime
 import sublime_plugin
 
-from .chat.ask_question import ClaudetteAskQuestionCommand
-from .chat.chat_history import ClaudetteClearChatHistoryCommand
-from .chat.chat_history import ClaudetteExportChatHistoryCommand
-from .chat.chat_history import ClaudetteImportChatHistoryCommand
+from .chat.ask_question import ClaudetteAskQuestionCommand, ClaudetteAskNewQuestionCommand
+from .chat.chat_history import ClaudetteClearChatHistoryCommand, ClaudetteExportChatHistoryCommand, ClaudetteExportChatHistoryCommand
 from .settings.select_model_panel import ClaudetteSelectModelPanelCommand
 from .settings.select_system_message_panel import ClaudetteSelectSystemMessagePanelCommand
 from .statusbar.spinner import Spinner
+
+def plugin_loaded():
+    spinner = Spinner()
+    spinner.start("Claudette", 1000)
 
 class ClaudetteFocusListener(sublime_plugin.EventListener):
     def on_activated(self, view):
@@ -58,7 +60,3 @@ class ClaudetteFocusListener(sublime_plugin.EventListener):
         # Verify the update
         print(f"Final current status for view {view.id()}: "
               f"{view.settings().get('claudette_is_current_chat', False)}")
-
-def plugin_loaded():
-    spinner = Spinner()
-    spinner.start("Claudette", 1000)
