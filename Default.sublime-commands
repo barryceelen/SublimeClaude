@@ -24,7 +24,7 @@
 		"command": "claudette_select_model_panel"
 	},
 	{
-		"caption": "Claude: Switch System Message",
+		"caption": "Claude: Switch System Prompt",
 		"command": "claudette_select_system_message_panel"
 	},
 ]

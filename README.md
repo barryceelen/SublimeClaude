@@ -6,14 +6,17 @@ Type "Ask Claude" in the command palette or find the "Ask Claude" item in the "T
 
 ## Features
 
-- Chat with Claude
-- Send along selected code/text for context
-- Configure which mode to use
-- Configure a system message
+- Chat with Claude in multiple chat windows at the same time
+- Automatically send along selected text to add context to your question
+- Configure which [model](https://docs.anthropic.com/en/docs/about-claude/models) to use
+- Configure a [system prompt](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts)
 - Export the current chat as a JSON file for later reference
 - Import a chat JSON file to continue the discussion where you left off
 
 ## Available commands
+
+All commands are available via the "Tools > Claudette" menu or via the command palette.
+
 **Ask Question (claudette\_ask\_question)**  
 Opens a question input prompt. Submit the prompt with the `enter` key, `shift+enter` for line breaks.
 
@@ -24,7 +27,7 @@ Opens a question input prompt. The conversation will take place in a new window.
 Clear the chat history in the most recently active chat view in the current window. Keeps the chat history visible in the view, but new queries do not send along the previous conversation.
 
 **Export Chat History (claudette\_export\_chat\_history)**  
-Export the chat history from the most recently active chat view to a JSON file.
+Export the chat history from any chat view. This command exports the most recently active chat view in the current window to a JSON file.
 
 **Import Chat History (claudette\_export\_chat\_history)**  
 Import a chat history JSON file and continue the conversation where it left off.
@@ -32,12 +35,12 @@ Import a chat history JSON file and continue the conversation where it left off.
 **Switch Model (claudette\_select\_model\_panel)**  
 Switch between all available Anthropic models.
 
-**Switch System Message (claudette\_select\_system\_message\_panel)**
-Multiple system message can be added via the Claudette settings. This command allows you to switch the system message that is sent along with a conversation. 
+**Switch System Prompt (claudette\_select\_system\_message\_panel)**
+Give Claude a role by adding a system prompt. Multiple system prompts can be added via the Claudette settings. This command allows you to switch the system prompt that is sent along with a conversation.
 
 ## Key Bindings
 
-The Claudette package does not add key bindings for its commands out of the box. The following example adds a keyboard shortcut that opens the "Ask Question" panel. You can add your own keyboard shortcuts via the Settings > Keybindings settings menu.
+The Claudette package does not add [key bindings](https://www.sublimetext.com/docs/key_bindings.html) for its commands out of the box. The following example adds a handy keyboard shortcut that opens the "Ask Question" panel. You can add your own keyboard shortcuts via the Settings > Keybindings settings menu.
 
 For OSX:
 
