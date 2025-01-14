@@ -35,14 +35,15 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
             return None
 
         try:
-            # Try to get existing instance first
-            self.chat_view = ClaudetteChatView.get_instance()
-        except:
-            # Create new instance if none exists
+            # Try to get existing instance or create new one
             self.chat_view = ClaudetteChatView.get_instance(window, self.settings)
+            view = self.chat_view.create_or_get_view()
+            return view
 
-        view = self.chat_view.create_or_get_view()
-        return view
+        except Exception as e:
+            print(f"{PLUGIN_NAME} Error: {str(e)}")
+            sublime.error_message(f"{PLUGIN_NAME} Error: Could not create or get chat panel")
+            return None
 
     def handle_input(self, code, question):
         if not question or question.strip() == '':

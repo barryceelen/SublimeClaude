@@ -13,41 +13,50 @@ class CodeBlock:
     language: str
 
 class ClaudetteChatView:
-    _instance = None
+    _instances = {}  # Store one instance per window
 
     @classmethod
     def get_instance(cls, window=None, settings=None):
-        if cls._instance is None:
-            if window is None or settings is None:
-                raise ValueError("Window and settings are required for initial creation")
-            cls._instance = cls(window, settings)
-        return cls._instance
+        if window is None:
+            raise ValueError("Window is required")
+
+        window_id = window.id()
+
+        if window_id not in cls._instances:
+            if settings is None:
+                raise ValueError("Settings are required for initial creation")
+            cls._instances[window_id] = cls(window, settings)
+
+        return cls._instances[window_id]
 
     def __init__(self, window, settings):
-        if ClaudetteChatView._instance is not None:
-            raise Exception("This class is a singleton!")
         self.window = window
         self.settings = settings
         self.view = None
         self.phantom_set = None
         self.existing_button_positions = set()
-        ClaudetteChatView._instance = self
 
     def create_or_get_view(self):
         """
         Creates a new chat view or returns existing one.
-
-        Returns:
-            sublime.View or None: The chat view object or None if creation fails.
         """
         try:
-            # Check for existing chat view
+            # First check for current chat view in this window
             for view in self.window.views():
-                if view.settings().get('claudette_is_chat_view', False):
+                if (view.settings().get('claudette_is_chat_view', False) and
+                    view.settings().get('claudette_is_current_chat', False)):
                     self.view = view
                     return self.view
 
-            # Create new chat view if none exists
+            # If no current chat view found, use the first chat view
+            for view in self.window.views():
+                if view.settings().get('claudette_is_chat_view', False):
+                    self.view = view
+                    # Set this view as current since none was marked as current
+                    view.settings().set('claudette_is_current_chat', True)
+                    return self.view
+
+            # Create new chat view if none exists in this window
             self.view = self.window.new_file()
             if not self.view:
                 print(f"{PLUGIN_NAME} Error: Could not create new file")
@@ -64,6 +73,7 @@ class ClaudetteChatView:
             self.view.set_read_only(True)
             self.view.settings().set("line_numbers", show_line_numbers)
             self.view.settings().set("claudette_is_chat_view", True)
+            self.view.settings().set("claudette_is_current_chat", True)
 
             return self.view
 
@@ -181,8 +191,11 @@ class ClaudetteChatView:
         if self.phantom_set:
             self.phantom_set.update([])  # Clear all phantoms
         self.existing_button_positions.clear()
+        if self.window:
+            window_id = self.window.id()
+            if window_id in self._instances:
+                del self._instances[window_id]
         self.view = None
-        ClaudetteChatView._instance = None
 
     def find_code_blocks(self, content: str) -> List[CodeBlock]:
         """
@@ -258,7 +271,7 @@ class ClaudetteChatView:
         return f'''
             <div class="code-block-button">
                 <a class="copy-button" href="copy:{code}">
-                    Copy [{lang_indicator}]
+                    Copy{lang_indicator}
                 </a>
             </div>
         '''
