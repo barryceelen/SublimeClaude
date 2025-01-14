@@ -12,13 +12,11 @@ Type "Ask Claude" in the command palette or find the "Ask Claude" item in the "T
 - Configure a system message
 - Export the current chat as a JSON file for later reference
 - Import a chat JSON file to continue the discussion where you left off
-- View the current chat history
 
 ## Available commands
 
 - Ask Question
 - Clear Chat History
-- Show Chat History
 - Export Chat History
 - Import Chat History
 - Switch Model
