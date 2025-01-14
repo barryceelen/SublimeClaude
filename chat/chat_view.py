@@ -228,10 +228,7 @@ class ClaudetteChatView:
                 region = sublime.Region(block.end_pos, block.end_pos)
                 escaped_code = self.escape_html(block.content)
 
-                button_html = self.create_button_html(
-                    escaped_code,
-                    block.language
-                )
+                button_html = self.create_button_html(escaped_code)
 
                 phantom = sublime.Phantom(
                     region,
@@ -339,15 +336,8 @@ class ClaudetteChatView:
                 .replace('<', '&lt;')
                 .replace('>', '&gt;'))
 
-    def create_button_html(self, code: str, language: str = '') -> str:
+    def create_button_html(self, code: str) -> str:
         """
         Creates HTML for the copy button with optional language indicator.
         """
-        lang_indicator = f' ({language})' if language else ''
-        return f'''
-            <div class="code-block-button">
-                <a class="copy-button" href="copy:{code}">
-                    Copy{lang_indicator}
-                </a>
-            </div>
-        '''
+        return f'''<div class="code-block-button"><a class="copy-button" href="copy:{code}">Copy</a></div>'''
