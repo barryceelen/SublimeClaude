@@ -1,8 +1,8 @@
+import json
 import sublime
 import re
-from typing import List, Tuple, Set
+from typing import List, Set
 from dataclasses import dataclass
-
 from ..constants import PLUGIN_NAME
 
 @dataclass
@@ -75,6 +75,9 @@ class ClaudetteChatView:
             self.view.settings().set("claudette_is_chat_view", True)
             self.view.settings().set("claudette_is_current_chat", True)
 
+            # Initialize empty conversation history
+            self.view.settings().set("claudette_conversation", [])
+
             return self.view
 
         except Exception as e:
@@ -82,13 +85,59 @@ class ClaudetteChatView:
             sublime.error_message(f"{PLUGIN_NAME} Error: Could not create chat panel")
             return None
 
+    def get_conversation_history(self):
+        """
+        Gets the conversation history from the current view's settings.
+        Deserializes from JSON if necessary.
+        """
+        if not self.view:
+            return []
+
+        # Try to get serialized conversation
+        conversation_json = self.view.settings().get('claudette_conversation_json', '[]')
+        try:
+            return json.loads(conversation_json)
+        except json.JSONDecodeError:
+            print(f"{PLUGIN_NAME} Error: Could not decode conversation history")
+            return []
+
+    def add_to_conversation(self, role: str, content: str):
+        """
+        Adds a new message to the conversation history and serializes to JSON.
+        """
+        if not self.view:
+            return
+
+        conversation = self.get_conversation_history()
+        conversation.append({
+            "role": role,
+            "content": content
+        })
+
+        # Serialize and save conversation
+        try:
+            conversation_json = json.dumps(conversation)
+            self.view.settings().set('claudette_conversation_json', conversation_json)
+        except json.JSONEncodeError:
+            print(f"{PLUGIN_NAME} Error: Could not encode conversation history")
+
+    def handle_question(self, question: str):
+        """
+        Handles a new question by adding it to the conversation history
+        and returning the complete conversation context.
+        """
+        self.add_to_conversation("user", question)
+        return self.get_conversation_history()
+
+    def handle_response(self, response: str):
+        """
+        Handles an AI response by adding it to the conversation history.
+        """
+        self.add_to_conversation("assistant", response)
+
     def append_text(self, text, scroll_to_end=True):
         """
         Appends text to the chat view.
-
-        Args:
-            text (str): Text to append
-            scroll_to_end (bool): Whether to scroll to end after appending
         """
         if not self.view:
             return
@@ -118,6 +167,8 @@ class ClaudetteChatView:
             self.view.run_command('right_delete')
             self.view.set_read_only(True)
             self.clear_buttons()
+            # Clear conversation history
+            self.view.settings().set('claudette_conversation_json', '[]')
 
     def clear_buttons(self):
         """Clears all existing copy buttons."""
@@ -177,7 +228,6 @@ class ClaudetteChatView:
     def handle_copy(self, code):
         """
         Copies code to clipboard when button is clicked.
-        Shows a status message to confirm the copy action.
         """
         try:
             sublime.set_clipboard(code)
@@ -189,7 +239,7 @@ class ClaudetteChatView:
     def destroy(self):
         """Cleanup method to be called when the view is being destroyed."""
         if self.phantom_set:
-            self.phantom_set.update([])  # Clear all phantoms
+            self.phantom_set.update([])
         self.existing_button_positions.clear()
         if self.window:
             window_id = self.window.id()
@@ -199,11 +249,9 @@ class ClaudetteChatView:
 
     def find_code_blocks(self, content: str) -> List[CodeBlock]:
         """
-        Finds all code blocks in the content using improved regex pattern.
-        Returns list of CodeBlock objects with positions and language info.
+        Finds all code blocks in the content.
         """
         blocks = []
-        # Updated regex to better handle language specification and edge cases
         pattern = r"```([\w+]*)\n(.*?)\n```"
 
         for match in re.finditer(pattern, content, re.DOTALL):
@@ -219,7 +267,7 @@ class ClaudetteChatView:
 
     def validate_and_fix_code_blocks(self) -> None:
         """
-        Improved validation and fixing of code blocks with better edge case handling.
+        Validates and fixes code blocks.
         """
         if not self.view:
             return

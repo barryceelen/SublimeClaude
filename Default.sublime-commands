@@ -16,10 +16,6 @@
 		"command": "claudette_import_chat_history"
 	},
 	{
-		"caption": "Claude: Show Chat History",
-		"command": "claudette_show_chat_history"
-	},
-	{
 		"caption": "Claude: Switch Model",
 		"command": "claudette_select_model_panel"
 	},

@@ -26,10 +26,6 @@
 								"command": "claudette_clear_chat_history"
 							},
 							{
-								"caption": "Show Chat History",
-								"command": "claudette_show_chat_history"
-							},
-							{
 								"caption": "Export Chat History",
 								"command": "claudette_export_chat_history"
 							},

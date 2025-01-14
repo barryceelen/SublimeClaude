@@ -4,7 +4,6 @@ import threading
 from ..constants import PLUGIN_NAME, SETTINGS_FILE
 from ..api.api import ClaudeAPI
 from ..api.handler import StreamingResponseHandler
-from .chat_history import ClaudetteChatHistory
 from .chat_view import ClaudetteChatView
 
 class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
@@ -27,7 +26,16 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
     def is_enabled(self):
         return True
 
-    def create_chat_panel(self):
+    def create_chat_panel(self, force_new=False):
+        """
+        Creates a chat panel, optionally forcing a new view creation.
+
+        Args:
+            force_new (bool): If True, always creates a new view instead of reusing existing one
+
+        Returns:
+            sublime.View: The created or existing view
+        """
         window = self.get_window()
         if not window:
             print(f"{PLUGIN_NAME} Error: No active window found")
@@ -35,10 +43,36 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
             return None
 
         try:
-            # Try to get existing instance or create new one
-            self.chat_view = ClaudetteChatView.get_instance(window, self.settings)
-            view = self.chat_view.create_or_get_view()
-            return view
+            if force_new:
+                # Create a new view
+                new_view = window.new_file()
+                if not new_view:
+                    raise Exception("Could not create new view")
+
+                # Initialize it as a chat view
+                new_view.set_scratch(True)
+                new_view.set_name("Claude Chat")
+                new_view.assign_syntax('Packages/Markdown/Markdown.sublime-syntax')
+                new_view.settings().set('claudette_is_chat_view', True)
+                new_view.settings().set('claudette_is_current_chat', True)
+
+                # Mark other chat views as not current
+                for view in window.views():
+                    if view != new_view and view.settings().get('claudette_is_chat_view', False):
+                        view.settings().set('claudette_is_current_chat', False)
+
+                # Create a new chat view instance for this view
+                self.chat_view = ClaudetteChatView(window, self.settings)
+                self.chat_view.view = new_view
+
+                # Register the new instance
+                ClaudetteChatView._instances[window.id()] = self.chat_view
+
+                return new_view
+            else:
+                # Use existing behavior
+                self.chat_view = ClaudetteChatView.get_instance(window, self.settings)
+                return self.chat_view.create_or_get_view()
 
         except Exception as e:
             print(f"{PLUGIN_NAME} Error: {str(e)}")
@@ -110,12 +144,13 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
 
             message += "### Claude's Response\n\n"
 
-            chat_history = ClaudetteChatHistory()
-
+            # Format the user message with code if present
             user_message = question
             if code.strip():
                 user_message = f"{question}\n\nCode:\n{code}"
-            chat_history.add_message("user", user_message)
+
+            # Add question to conversation history and get full context
+            conversation = self.chat_view.handle_question(user_message)
 
             self.chat_view.append_text(message)
 
@@ -123,14 +158,27 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
                 self.chat_view.focus()
 
             api = ClaudeAPI()
+
+            # Store the starting position of the message
+            message_start = self.chat_view.view.size()
+
+            def on_complete():
+                # Add the response to conversation history after streaming is complete
+                response_start = self.chat_view.view.size()
+                response_region = sublime.Region(response_start - message_start)
+                response_text = self.chat_view.view.substr(response_region)
+                self.chat_view.handle_response(response_text)
+                self.chat_view.on_streaming_complete()
+
             handler = StreamingResponseHandler(
-                self.chat_view.view,
-                on_complete=self.chat_view.on_streaming_complete
+                view=self.chat_view.view,  # Changed from self.view to self.chat_view.view
+                chat_view=self.chat_view,  # Changed from self to self.chat_view
+                on_complete=on_complete    # Changed to use the local on_complete function
             )
 
             thread = threading.Thread(
                 target=api.stream_response,
-                args=(handler.append_chunk, chat_history.get_messages(api_format=True))
+                args=(handler.append_chunk, conversation)
             )
             thread.start()
 

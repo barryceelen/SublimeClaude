@@ -1,9 +1,7 @@
-from ..chat.chat_history import ClaudetteChatHistory
-
 class StreamingResponseHandler:
-    def __init__(self, view, on_complete=None):
+    def __init__(self, view, chat_view, on_complete=None):  # Add chat_view parameter
         self.view = view
-        self.chat_history = ClaudetteChatHistory()
+        self.chat_view = chat_view  # Store reference to chat view
         self.current_response = ""
         self.on_complete = on_complete
 
@@ -17,13 +15,16 @@ class StreamingResponseHandler:
         })
         self.view.set_read_only(True)
 
-        if is_done and self.on_complete:
-            self.on_complete()
+        if is_done:
+            # Add complete response to conversation history
+            self.chat_view.handle_response(self.current_response)
+            if self.on_complete:
+                self.on_complete()
 
     def __del__(self):
         try:
             if hasattr(self, 'current_response') and self.current_response:
-                self.chat_history.add_message("assistant", self.current_response)
+                self.chat_view.handle_response(self.current_response)
                 if self.on_complete:
                     self.on_complete()
         except:
