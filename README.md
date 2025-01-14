@@ -70,3 +70,5 @@ For Linux and Windows:
 2. Once the repository is added, use the Package Control: Install Package" command to install the `Claudette` package
 2. Get an API key from [Anthropic](https://console.anthropic.com/)
 3. Configure API key in `Preferences > Package Settings > Claudette > Settings`
+
+![Claude Chat View](/screenshot.png?raw=true "Ask Claude")
