@@ -1,7 +1,0 @@
-[
-	{
-		"id": "claude-context",
-		"caption": "Ask Claude",
-		"command": "claudette_ask_question"
-	}
-]
