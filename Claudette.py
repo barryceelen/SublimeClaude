@@ -8,6 +8,7 @@
 import sublime
 import sublime_plugin
 
+from .chat.chat_view import ClaudetteChatViewListener
 from .chat.ask_question import ClaudetteAskQuestionCommand, ClaudetteAskNewQuestionCommand
 from .chat.chat_history import ClaudetteClearChatHistoryCommand, ClaudetteExportChatHistoryCommand, ClaudetteImportChatHistoryCommand
 from .settings.select_model_panel import ClaudetteSelectModelPanelCommand
