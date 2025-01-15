@@ -1,0 +1,7 @@
+# Skip the following content from *.sublime-package files
+
+.gitattributes      export-ignore
+.gitignore          export-ignore
+
+# Documentation
+screenshot.png		export-ignore
