@@ -1,5 +1,6 @@
 import json
 import sublime
+import sublime_plugin
 import re
 from typing import List, Set
 from dataclasses import dataclass
@@ -7,20 +8,25 @@ from ..constants import PLUGIN_NAME
 
 @dataclass
 class CodeBlock:
+    """Represents a code block found in the chat content."""
     content: str
     start_pos: int
     end_pos: int
     language: str
 
-class ClaudetteChatView:
-    _instances = {}
+class ClaudetteChatViewListener(sublime_plugin.ViewEventListener):
+    """Event listener specifically for chat views."""
 
-    @staticmethod
-    def _handle_chat_text_command(view, command_name, args):
-        """Handles text commands for chat views."""
+    @classmethod
+    def is_applicable(cls, settings):
+        """Only attach this listener to chat views."""
+        return settings.get('claudette_is_chat_view', False)
+
+    def on_text_command(self, command_name, args):
+        """Handle text commands for chat views."""
         if command_name == "insert" and args.get("characters") == "\n":
             try:
-                window = view.window()
+                window = self.view.window()
                 if window:
                     window.run_command('claudette_ask_question')
                     return ('noop', None)
@@ -28,8 +34,14 @@ class ClaudetteChatView:
                 sublime.status_message(f"Claudette error: {str(e)}")
         return None
 
+class ClaudetteChatView:
+    """Manages chat views for the Claudette plugin."""
+
+    _instances = {}
+
     @classmethod
     def get_instance(cls, window=None, settings=None):
+        """Get or create a chat view instance for the given window."""
         if window is None:
             raise ValueError("Window is required")
 
@@ -43,16 +55,15 @@ class ClaudetteChatView:
         return cls._instances[window_id]
 
     def __init__(self, window, settings):
+        """Initialize the chat view manager."""
         self.window = window
         self.settings = settings
         self.view = None
-        self.phantom_sets = {} # Store phantom sets per view
-        self.existing_button_positions = {} # Store positions per view
+        self.phantom_sets = {}  # Store phantom sets per view
+        self.existing_button_positions = {}  # Store positions per view
 
     def create_or_get_view(self):
-        """
-        Creates a new chat view or returns existing one.
-        """
+        """Create a new chat view or return an existing one."""
         try:
             # First check for current chat view in this window
             for view in self.window.views():
@@ -75,9 +86,6 @@ class ClaudetteChatView:
                 print(f"{PLUGIN_NAME} Error: Could not create new file")
                 sublime.error_message(f"{PLUGIN_NAME} Error: Could not create new file")
                 return None
-
-            # Opens the question input when the 'enter' key is used in the chat view
-            self.view.subscribe('on_text_command', self._handle_chat_text_command)
 
             chat_settings = self.settings.get('chat', {})
             line_numbers = chat_settings.get('line_numbers', False)
@@ -102,32 +110,24 @@ class ClaudetteChatView:
             return None
 
     def get_phantom_set(self, view):
-        """
-        Gets or creates a phantom set for the specific view.
-        """
+        """Get or create a phantom set for the specific view."""
         view_id = view.id()
         if view_id not in self.phantom_sets:
             self.phantom_sets[view_id] = sublime.PhantomSet(view, f"code_block_buttons_{view_id}")
         return self.phantom_sets[view_id]
 
     def get_button_positions(self, view):
-        """
-        Gets or creates a set of button positions for the specific view.
-        """
+        """Get or create a set of button positions for the specific view."""
         view_id = view.id()
         if view_id not in self.existing_button_positions:
             self.existing_button_positions[view_id] = set()
         return self.existing_button_positions[view_id]
 
     def get_conversation_history(self):
-        """
-        Gets the conversation history from the current view's settings.
-        Deserializes from JSON if necessary.
-        """
+        """Get the conversation history from the current view's settings."""
         if not self.view:
             return []
 
-        # Try to get serialized conversation
         conversation_json = self.view.settings().get('claudette_conversation_json', '[]')
         try:
             return json.loads(conversation_json)
@@ -136,9 +136,7 @@ class ClaudetteChatView:
             return []
 
     def add_to_conversation(self, role: str, content: str):
-        """
-        Adds a new message to the conversation history and serializes to JSON.
-        """
+        """Add a new message to the conversation history."""
         if not self.view:
             return
 
@@ -148,10 +146,6 @@ class ClaudetteChatView:
             "content": content
         })
 
-        # Serialize and save conversation. Note that we're serializing the
-        # conversation so that it is retained when shutting down and reopening
-        # Sublime Text: if we save it as an object the conversation seems to be
-        # discarded.
         try:
             conversation_json = json.dumps(conversation)
             self.view.settings().set('claudette_conversation_json', conversation_json)
@@ -159,23 +153,16 @@ class ClaudetteChatView:
             print(f"{PLUGIN_NAME} Error: Could not encode conversation history")
 
     def handle_question(self, question: str):
-        """
-        Handles a new question by adding it to the conversation history
-        and returning the complete conversation context.
-        """
+        """Handle a new question and return the complete conversation context."""
         self.add_to_conversation("user", question)
         return self.get_conversation_history()
 
     def handle_response(self, response: str):
-        """
-        Handles the Claude response by adding it to the conversation history.
-        """
+        """Handle the Claude response by adding it to the conversation history."""
         self.add_to_conversation("assistant", response)
 
     def append_text(self, text, scroll_to_end=True):
-        """
-        Appends text to the chat view.
-        """
+        """Append text to the chat view."""
         if not self.view:
             return
 
@@ -188,16 +175,16 @@ class ClaudetteChatView:
         self.view.set_read_only(True)
 
     def focus(self):
-        """Focuses the chat view."""
+        """Focus the chat view."""
         if self.view and self.view.window():
             self.view.window().focus_view(self.view)
 
     def get_size(self):
-        """Returns the size of the chat view content."""
+        """Return the size of the chat view content."""
         return self.view.size() if self.view else 0
 
     def clear(self):
-        """Clears the chat view content and buttons."""
+        """Clear the chat view content and buttons."""
         if self.view:
             self.view.set_read_only(False)
             self.view.run_command('select_all')
@@ -207,7 +194,7 @@ class ClaudetteChatView:
             self.clear_buttons()
 
     def clear_buttons(self):
-        """Clears all existing code block copy buttons for the current view."""
+        """Clear all existing code block copy buttons for the current view."""
         if self.view:
             view_id = self.view.id()
             if view_id in self.phantom_sets:
@@ -216,15 +203,12 @@ class ClaudetteChatView:
                 self.existing_button_positions[view_id].clear()
 
     def on_streaming_complete(self) -> None:
-        """
-        Improved handling of code blocks and phantom buttons with view-specific tracking.
-        """
+        """Handle code blocks and phantom buttons when streaming is complete."""
         if not self.view:
             return
 
         self.validate_and_fix_code_blocks()
 
-        # Get or create the phantom set for this specific view
         phantom_set = self.get_phantom_set(self.view)
         button_positions = self.get_button_positions(self.view)
 
@@ -263,9 +247,7 @@ class ClaudetteChatView:
             phantom_set.update(phantoms)
 
     def handle_copy(self, code):
-        """
-        Copies code to clipboard when button is clicked.
-        """
+        """Copy code to clipboard when button is clicked."""
         try:
             sublime.set_clipboard(code)
             sublime.status_message("Code copied to clipboard")
@@ -273,29 +255,8 @@ class ClaudetteChatView:
             print(f"{PLUGIN_NAME} Error copying to clipboard: {str(e)}")
             sublime.status_message("Error copying code to clipboard")
 
-    def destroy(self):
-        """Cleanup method with improved phantom management."""
-        if self.view:
-            # Remove 'enter' key event listener
-            self.view.unsubscribe('on_text_command', self._handle_chat_text_command)
-            view_id = self.view.id()
-            if view_id in self.phantom_sets:
-                self.phantom_sets[view_id].update([])
-                del self.phantom_sets[view_id]
-            if view_id in self.existing_button_positions:
-                del self.existing_button_positions[view_id]
-
-        if self.window:
-            window_id = self.window.id()
-            if window_id in self._instances:
-                del self._instances[window_id]
-
-        self.view = None
-
     def find_code_blocks(self, content: str) -> List[CodeBlock]:
-        """
-        Finds all code blocks in the content.
-        """
+        """Find all code blocks in the content."""
         blocks = []
         pattern = r"```([\w+]*)\n(.*?)\n```"
 
@@ -311,9 +272,7 @@ class ClaudetteChatView:
         return blocks
 
     def validate_and_fix_code_blocks(self) -> None:
-        """
-        Validates and tries to fix unclosed code blocks.
-        """
+        """Validate and fix unclosed code blocks."""
         if not self.view:
             return
 
@@ -326,12 +285,12 @@ class ClaudetteChatView:
             stripped = line.strip()
 
             if stripped.startswith('```'):
-                if len(stripped) > 3: # Opening block with language
+                if len(stripped) > 3:  # Opening block with language
                     stack.append((i, stripped[3:].strip()))
                 elif stripped == '```':
-                    if stack: # Proper closing
+                    if stack:  # Proper closing
                         stack.pop()
-                    else: # Orphaned closing marker
+                    else:  # Orphaned closing marker
                         fixes_needed.append((i, 'remove'))
 
         # Handle unclosed blocks
@@ -347,9 +306,7 @@ class ClaudetteChatView:
 
     @staticmethod
     def escape_html(text: str) -> str:
-        """
-        Safely escape HTML special characters.
-        """
+        """Safely escape HTML special characters."""
         return (text
                 .replace('&', '&amp;')
                 .replace('"', '&quot;')
@@ -357,10 +314,22 @@ class ClaudetteChatView:
                 .replace('>', '&gt;'))
 
     def create_button_html(self, code: str) -> str:
-        """
-        Creates HTML for the copy button with optional language indicator.
-        """
+        """Create HTML for the copy button with optional language indicator."""
         return f'''<div class="code-block-button"><a class="copy-button" href="copy:{code}">Copy</a></div>'''
 
-        import sublime
-        import sublime_plugin
+    def destroy(self):
+        """Clean up the chat view and associated resources."""
+        if self.view:
+            view_id = self.view.id()
+            if view_id in self.phantom_sets:
+                self.phantom_sets[view_id].update([])
+                del self.phantom_sets[view_id]
+            if view_id in self.existing_button_positions:
+                del self.existing_button_positions[view_id]
+
+        if self.window:
+            window_id = self.window.id()
+            if window_id in self._instances:
+                del self._instances[window_id]
+
+        self.view = None
