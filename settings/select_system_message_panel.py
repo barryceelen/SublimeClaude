@@ -30,7 +30,7 @@ class ClaudetteSelectSystemMessagePanelCommand(sublime_plugin.WindowCommand):
         def on_select(index):
             if index != -1:
                 if index == len(panel_items) - 1:
-                    # Open package settings if the last item (settings item) was selected
+                    # Open package settings if the last item was selected
                     self.window.run_command("edit_settings", {
                         "base_file": "${packages}/Claudette/Claudette.sublime-settings",
                         "default": "{\n\t$0\n}\n"

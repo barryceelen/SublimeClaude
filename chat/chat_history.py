@@ -58,7 +58,6 @@ def validate_message(message):
 class ClaudetteImportChatHistoryCommand(sublime_plugin.WindowCommand):
     def run(self):
         try:
-            # Show open dialog
             file_types = [("JSON", ["json"])]
             directory = get_current_directory(self.window)
 
@@ -78,7 +77,6 @@ class ClaudetteImportChatHistoryCommand(sublime_plugin.WindowCommand):
             return
 
         try:
-            # Save the last used path
             save_last_directory(path)
 
             # Read and validate the JSON file
@@ -92,36 +90,29 @@ class ClaudetteImportChatHistoryCommand(sublime_plugin.WindowCommand):
             if not isinstance(messages, list):
                 raise ValueError("Messages must be a list")
 
-            # Validate messages
             valid_messages = [msg for msg in messages if validate_message(msg)]
             if not valid_messages:
                 raise ValueError("No valid messages found in import file")
 
-            # Create ask command with force_new=True
             ask_cmd = ClaudetteAskQuestionCommand(self.window.active_view())
             ask_cmd.load_settings()
 
-            # Create a new chat view
             sublime_view = ask_cmd.create_chat_panel(force_new=True)
             if not sublime_view:
                 return
 
-            # Get the chat view instance
             chat_view = ClaudetteChatView.get_instance(self.window, ask_cmd.settings)
             if not chat_view:
                 return
 
-            # Clear any existing content
             sublime_view.set_read_only(False)
             sublime_view.run_command('select_all')
             sublime_view.run_command('right_delete')
 
-            # Initialize chat view settings
             chat_settings = ask_cmd.settings.get('chat', {})
             show_line_numbers = chat_settings.get('line_numbers', False)
             sublime_view.settings().set("line_numbers", show_line_numbers)
 
-            # Render messages in the view
             first_message = True
             for message in valid_messages:
                 if message['role'] == 'user':
@@ -140,7 +131,6 @@ class ClaudetteImportChatHistoryCommand(sublime_plugin.WindowCommand):
             # Store the conversation history in the view's settings
             sublime_view.settings().set('claudette_conversation_json', json.dumps(valid_messages))
 
-            # Move cursor to the end and scroll
             end_point = sublime_view.size()
             sublime_view.sel().clear()
             sublime_view.sel().add(sublime.Region(end_point))
@@ -173,7 +163,6 @@ class ClaudetteExportChatHistoryCommand(sublime_plugin.WindowCommand):
                 sublime.error_message("No chat history to export")
                 return
 
-            # Show save dialog
             file_types = [("JSON", ["json"])]
             directory = get_current_directory(self.window)
 
@@ -197,7 +186,6 @@ class ClaudetteExportChatHistoryCommand(sublime_plugin.WindowCommand):
             if not view:
                 return
 
-            # Save the last used path
             save_last_directory(path)
 
             # Get the conversation history from view settings
@@ -207,12 +195,10 @@ class ClaudetteExportChatHistoryCommand(sublime_plugin.WindowCommand):
             except json.JSONDecodeError:
                 messages = []
 
-            # Create the export data structure
             export_data = {
                 'messages': messages
             }
 
-            # Write to file
             with open(path, 'w', encoding='utf-8') as f:
                 json.dump(export_data, f, indent=2, ensure_ascii=False)
 
@@ -224,12 +210,10 @@ class ClaudetteExportChatHistoryCommand(sublime_plugin.WindowCommand):
 
 class ClaudetteClearChatHistoryCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        # Get the current window
         window = sublime.active_window()
         if not window:
             return
 
-        # Find the current chat view in this window
         current_chat_view = None
         for view in window.views():
             if (view.settings().get('claudette_is_chat_view', False) and
@@ -238,27 +222,18 @@ class ClaudetteClearChatHistoryCommand(sublime_plugin.TextCommand):
                 break
 
         if current_chat_view:
-            # Clear the conversation history setting
             current_chat_view.settings().set('claudette_conversation_json', '[]')
-
-            # Add clear history message at the bottom of the view
             current_chat_view.set_read_only(False)
 
-            # Get the end position of the view
             end_point = current_chat_view.size()
 
-            # Add two newlines before the message if the view isn't empty
             if end_point > 0:
                 current_chat_view.insert(edit, end_point, "\n\n")
                 end_point += 2
 
-            # Add the message with an icon
             clear_message = "⚠️ Chat history cleared"
             current_chat_view.insert(edit, end_point, clear_message)
-
             current_chat_view.set_read_only(True)
-
-            # Scroll to the end to show the message
             current_chat_view.show(current_chat_view.size())
 
             sublime.status_message("Chat history cleared")

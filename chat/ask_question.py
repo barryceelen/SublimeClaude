@@ -44,19 +44,16 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
 
         try:
             if force_new:
-                # Create a new view
                 new_view = window.new_file()
                 if not new_view:
                     raise Exception("Could not create new view")
 
-                # Initialize it as a chat view
                 new_view.set_scratch(True)
                 new_view.set_name("Claude Chat")
                 new_view.assign_syntax('Packages/Markdown/Markdown.sublime-syntax')
                 new_view.settings().set('claudette_is_chat_view', True)
                 new_view.settings().set('claudette_is_current_chat', True)
 
-                # Mark other chat views as not current
                 for view in window.views():
                     if view != new_view and view.settings().get('claudette_is_chat_view', False):
                         view.settings().set('claudette_is_current_chat', False)
@@ -70,7 +67,6 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
 
                 return new_view
             else:
-                # Use existing behavior
                 self.chat_view = ClaudetteChatView.get_instance(window, self.settings)
                 return self.chat_view.create_or_get_view()
 
@@ -105,7 +101,6 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
                 return
 
             if code is not None and question is not None:
-                # Create chat panel for direct calls with code and question
                 if not self.create_chat_panel():
                     return
                 self.send_to_claude(code, question)
@@ -144,12 +139,10 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
 
             message += "### Claude's Response\n\n"
 
-            # Format the user message with code if present
             user_message = question
             if code.strip():
                 user_message = f"{question}\n\nCode:\n{code}"
 
-            # Add question to conversation history and get full context
             conversation = self.chat_view.handle_question(user_message)
 
             self.chat_view.append_text(message)
@@ -159,7 +152,6 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
 
             api = ClaudeAPI()
 
-            # Store the starting position of the message
             message_start = self.chat_view.view.size()
 
             def on_complete():
@@ -171,9 +163,9 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
                 self.chat_view.on_streaming_complete()
 
             handler = StreamingResponseHandler(
-                view=self.chat_view.view,  # Changed from self.view to self.chat_view.view
-                chat_view=self.chat_view,  # Changed from self to self.chat_view
-                on_complete=on_complete    # Changed to use the local on_complete function
+                view=self.chat_view.view,
+                chat_view=self.chat_view,
+                on_complete=on_complete
             )
 
             thread = threading.Thread(
@@ -190,22 +182,18 @@ class ClaudetteAskQuestionCommand(sublime_plugin.TextCommand):
 class ClaudetteAskNewQuestionCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         try:
-            # Get the current view and window
             window = self.view.window() or sublime.active_window()
             if not window:
                 print(f"{PLUGIN_NAME} Error: No active window found")
                 sublime.error_message(f"{PLUGIN_NAME} Error: No active window found")
                 return
 
-            # Create an instance of ClaudetteAskQuestionCommand
             ask_command = ClaudetteAskQuestionCommand(self.view)
             ask_command.load_settings()
 
-            # Force creation of a new chat view
             if not ask_command.create_chat_panel(force_new=True):
                 return
 
-            # Show input panel for the question
             view = window.show_input_panel(
                 "Ask Claude (New Chat):",
                 "",

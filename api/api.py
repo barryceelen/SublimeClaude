@@ -18,9 +18,8 @@ class ClaudeAPI:
 
     def stream_response(self, chunk_callback, messages):
         """Stream API response for the given messages."""
-        # Validate messages before proceeding
         if not messages or not any(msg.get('content', '').strip() for msg in messages):
-            return  # Silently return if messages are empty or contain only whitespace
+            return
 
         def handle_error(error_msg):
             sublime.set_timeout(
@@ -80,7 +79,7 @@ class ClaudeAPI:
                             if not chunk.startswith('data: '):
                                 continue
 
-                            chunk = chunk[6:]  # Remove 'data: ' prefix
+                            chunk = chunk[6:] # Remove 'data: ' prefix
                             if chunk.strip() == '[DONE]':
                                 break
 
@@ -91,7 +90,7 @@ class ClaudeAPI:
                                     0
                                 )
                         except Exception:
-                            continue  # Skip invalid chunks without error messages
+                            continue # Skip invalid chunks without error messages
 
             except urllib.error.HTTPError as e:
                 error_content = e.read().decode('utf-8')
@@ -126,7 +125,7 @@ class ClaudeAPI:
             with urllib.request.urlopen(req) as response:
                 data = json.loads(response.read().decode('utf-8'))
                 model_ids = [item['id'] for item in data['data']]
-                sublime.status_message('')  # Clear status message
+                sublime.status_message('')
                 return model_ids
 
         except urllib.error.HTTPError as e:
@@ -143,6 +142,6 @@ class ClaudeAPI:
             print("Claude API: {0}".format(str(e)))
             sublime.error_message("An error occurred fetching the available models from the Claude API.")
         finally:
-            sublime.status_message('')  # Clear status message
+            sublime.status_message('')
 
         return []

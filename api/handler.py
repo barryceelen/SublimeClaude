@@ -1,7 +1,7 @@
 class StreamingResponseHandler:
-    def __init__(self, view, chat_view, on_complete=None):  # Add chat_view parameter
+    def __init__(self, view, chat_view, on_complete=None):
         self.view = view
-        self.chat_view = chat_view  # Store reference to chat view
+        self.chat_view = chat_view
         self.current_response = ""
         self.on_complete = on_complete
 

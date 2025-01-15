@@ -13,7 +13,7 @@ class CodeBlock:
     language: str
 
 class ClaudetteChatView:
-    _instances = {}  # Store one instance per window
+    _instances = {}
 
     @classmethod
     def get_instance(cls, window=None, settings=None):
@@ -33,8 +33,8 @@ class ClaudetteChatView:
         self.window = window
         self.settings = settings
         self.view = None
-        self.phantom_sets = {}  # Store phantom sets per view
-        self.existing_button_positions = {}  # Store positions per view
+        self.phantom_sets = {} # Store phantom sets per view
+        self.existing_button_positions = {} # Store positions per view
 
     def create_or_get_view(self):
         """
@@ -63,7 +63,6 @@ class ClaudetteChatView:
                 sublime.error_message(f"{PLUGIN_NAME} Error: Could not create new file")
                 return None
 
-            # Configure chat view settings
             chat_settings = self.settings.get('chat', {})
             show_line_numbers = chat_settings.get('line_numbers', False)
 
@@ -74,8 +73,6 @@ class ClaudetteChatView:
             self.view.settings().set("line_numbers", show_line_numbers)
             self.view.settings().set("claudette_is_chat_view", True)
             self.view.settings().set("claudette_is_current_chat", True)
-
-            # Initialize empty conversation history
             self.view.settings().set("claudette_conversation", [])
 
             return self.view
@@ -132,7 +129,10 @@ class ClaudetteChatView:
             "content": content
         })
 
-        # Serialize and save conversation
+        # Serialize and save conversation. Note that we're serializing the
+        # conversation so that it is retained when shutting down and reopening
+        # Sublime Text: if we save it as an object the conversation seems to be
+        # discarded.
         try:
             conversation_json = json.dumps(conversation)
             self.view.settings().set('claudette_conversation_json', conversation_json)
@@ -149,7 +149,7 @@ class ClaudetteChatView:
 
     def handle_response(self, response: str):
         """
-        Handles an AI response by adding it to the conversation history.
+        Handles the Claude response by adding it to the conversation history.
         """
         self.add_to_conversation("assistant", response)
 
@@ -184,12 +184,11 @@ class ClaudetteChatView:
             self.view.run_command('select_all')
             self.view.run_command('right_delete')
             self.view.set_read_only(True)
-            self.clear_buttons()
-            # Clear conversation history
             self.view.settings().set('claudette_conversation_json', '[]')
+            self.clear_buttons()
 
     def clear_buttons(self):
-        """Clears all existing copy buttons for the current view."""
+        """Clears all existing code block copy buttons for the current view."""
         if self.view:
             view_id = self.view.id()
             if view_id in self.phantom_sets:
@@ -292,7 +291,7 @@ class ClaudetteChatView:
 
     def validate_and_fix_code_blocks(self) -> None:
         """
-        Validates and fixes code blocks.
+        Validates and tries to fix unclosed code blocks.
         """
         if not self.view:
             return
@@ -306,12 +305,12 @@ class ClaudetteChatView:
             stripped = line.strip()
 
             if stripped.startswith('```'):
-                if len(stripped) > 3:  # Opening block with language
+                if len(stripped) > 3: # Opening block with language
                     stack.append((i, stripped[3:].strip()))
                 elif stripped == '```':
-                    if stack:  # Proper closing
+                    if stack: # Proper closing
                         stack.pop()
-                    else:  # Orphaned closing marker
+                    else: # Orphaned closing marker
                         fixes_needed.append((i, 'remove'))
 
         # Handle unclosed blocks
