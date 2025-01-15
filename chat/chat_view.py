@@ -65,12 +65,15 @@ class ClaudetteChatView:
 
             chat_settings = self.settings.get('chat', {})
             line_numbers = chat_settings.get('line_numbers', False)
+            rulers = chat_settings.get('rulers', False)
+            set_scratch = chat_settings.get('set_scratch', True)
 
             self.view.set_name("Claude Chat")
-            self.view.set_scratch(True)
+            self.view.set_scratch(set_scratch)
             self.view.assign_syntax('Packages/Markdown/Markdown.sublime-syntax')
             self.view.set_read_only(True)
             self.view.settings().set("line_numbers", line_numbers)
+            self.view.settings().set("rulers", rulers)
             self.view.settings().set("claudette_is_chat_view", True)
             self.view.settings().set("claudette_is_current_chat", True)
             self.view.settings().set("claudette_conversation", [])
