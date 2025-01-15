@@ -15,6 +15,6 @@
 	],
 	"default_system_message_index": 0,
 	"chat": {
-		"show_line_numbers": false,
+		"line_numbers": false,
 	}
 }
