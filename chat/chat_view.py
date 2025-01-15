@@ -15,6 +15,19 @@ class CodeBlock:
 class ClaudetteChatView:
     _instances = {}
 
+    @staticmethod
+    def _handle_chat_text_command(view, command_name, args):
+        """Handles text commands for chat views."""
+        if command_name == "insert" and args.get("characters") == "\n":
+            try:
+                window = view.window()
+                if window:
+                    window.run_command('claudette_ask_question')
+                    return ('noop', None)
+            except Exception as e:
+                sublime.status_message(f"Claudette error: {str(e)}")
+        return None
+
     @classmethod
     def get_instance(cls, window=None, settings=None):
         if window is None:
@@ -62,6 +75,9 @@ class ClaudetteChatView:
                 print(f"{PLUGIN_NAME} Error: Could not create new file")
                 sublime.error_message(f"{PLUGIN_NAME} Error: Could not create new file")
                 return None
+
+            # Opens the question input when the 'enter' key is used in the chat view
+            self.view.subscribe('on_text_command', self._handle_chat_text_command)
 
             chat_settings = self.settings.get('chat', {})
             line_numbers = chat_settings.get('line_numbers', False)
@@ -260,6 +276,8 @@ class ClaudetteChatView:
     def destroy(self):
         """Cleanup method with improved phantom management."""
         if self.view:
+            # Remove 'enter' key event listener
+            self.view.unsubscribe('on_text_command', self._handle_chat_text_command)
             view_id = self.view.id()
             if view_id in self.phantom_sets:
                 self.phantom_sets[view_id].update([])
@@ -343,3 +361,6 @@ class ClaudetteChatView:
         Creates HTML for the copy button with optional language indicator.
         """
         return f'''<div class="code-block-button"><a class="copy-button" href="copy:{code}">Copy</a></div>'''
+
+        import sublime
+        import sublime_plugin
