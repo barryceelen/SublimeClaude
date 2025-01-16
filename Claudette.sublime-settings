@@ -13,6 +13,7 @@
 		"You are a helpful AI assistant focused on writing and documentation.",
 		"You are a helpful AI assistant ready to help with any task.",
 	],
+	"temperature": "1.0",
 	"default_system_message_index": 0,
 	"chat": {
 		"line_numbers": false,

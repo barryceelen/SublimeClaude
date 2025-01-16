@@ -15,6 +15,17 @@ class ClaudeAPI:
         self.max_tokens = self.settings.get('max_tokens', MAX_TOKENS)
         self.model = self.settings.get('model', DEFAULT_MODEL)
         self.spinner = Spinner()
+        self.api_key = self.settings.get('temperature')
+        self.temperature = self.get_valid_temperature(self.settings.get('temperature', 1.0))
+
+    def get_valid_temperature(temp):
+        try:
+            temp = float(temp)
+            if 0.0 <= temp <= 1.0:
+                return temp
+            return 1.0
+        except (TypeError, ValueError):
+            return 1.0
 
     def stream_response(self, chunk_callback, messages):
         """Stream API response for the given messages."""
@@ -42,11 +53,12 @@ class ClaudeAPI:
             ]
 
             data = {
+            	'messages': filtered_messages,
+            	'max_tokens': MAX_TOKENS,
                 'model': self.model,
-                'messages': filtered_messages,
                 'stream': True,
-                'max_tokens': MAX_TOKENS,
                 'system': 'Please wrap all code examples in a markdown code block and ensure each code block is complete and self-contained.'
+                'temperature': self.temperature
             }
 
             system_messages = self.settings.get('system_messages', [])
