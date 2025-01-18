@@ -38,6 +38,11 @@ body {
 body {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	font-size: 1.125em;
+	text-align: center;
+}
+
+header {
+	margin-bottom: 2em;
 }
 
 h1 {
@@ -46,11 +51,31 @@ h1 {
 
 a {
 	color: inherit;
-	text-decoration: none;
 }
 
 a:hover {
 	text-decoration: underline;
+}
+
+a.button {
+	background: #fff;
+	border: 2px solid #fff;
+	border-radius: 20px;
+	color: #000;
+	display: inline-block;
+	padding: 0.5em 1em;
+	text-decoration: none;
+}
+
+a:hover.button {
+	background: transparent;
+	color: #fff;
+	text-decoration: none;
+}
+
+.screenshot {
+	max-width: 1200px;
+	width: 100%;
 }
 </style>
 <script type="application/ld+json">
@@ -76,17 +101,12 @@ a:hover {
 	<div class="wrap">
 		<header>
 			<h1><span>Claudette</span></h1>
-			<p>A Sublime Text package that integrates the Anthropic Claude API into your editor.</p>
+			<p>A <a href="https://www.sublimetext.com">Sublime Text</a> package that integrates the Anthropic Claude API into your editor.</p>
+			<a class="button" href="https://github.com/barryceelen/Claudette">GitHub →</a>
 		</header>
 		<main>
+			<a rel="noopener noreferrer" href="https://github.com/barryceelen/Claudette/blob/main/screenshot.png?raw=true"><img src="https://github.com/barryceelen/Claudette/raw/main/screenshot.png?raw=true" class="screenshot" alt="Claude Chat View"></a>
 		</main>
-		<footer>
-			<div class="footer-wrap">
-				<div class="footer-nav">
-					<a href="https://github.com/barryceelen/Claudette">GitHub →</a>
-				</div>
-			</div>
-		</footer>
 	</div>
 </body>
 </html>
