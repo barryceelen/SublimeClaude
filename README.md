@@ -20,7 +20,7 @@ All commands are available via the *Tools > Claudette* menu or via the command p
 
 - **Ask Question**  
 *claudette\_ask\_question*  
-Opens a question input prompt. Submit the prompt with the `enter` key, `shift+enter` for line breaks.
+Opens a question input prompt. Submit the prompt with the <kbd>⏎ Enter</kbd> key. <kbd>⇧ Shift</kbd> + <kbd>⏎ Enter</kbd> for line breaks.
 
 - **Ask Question In New Chat View**  
 *claudette\_ask\_new\_question*  
