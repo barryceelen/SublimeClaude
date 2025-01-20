@@ -24,11 +24,11 @@ Opens a question input prompt. Submit your question with the <kbd>⏎ Enter</kbd
 
 - **Ask Question In New Chat View**  
 *claudette\_ask\_new\_question*  
-Opens a question input prompt. The conversation will take place in a new window. Useful for having multiple chats in the same window.
+Opens a question input prompt. A new chat view will open if there is an existing conversation in the current view. Useful for having multiple simultaneous chats, each with their own context and history.
 
 - **Clear Chat History**   
 *claudette\_clear\_chat\_history*  
-Clear the chat history to reduce token usage while keeping previous messages visible in the interface. This prevents resending old messages during new queries.
+Clear the chat history to reduce token usage while keeping previous messages visible in the interface. Prevents resending previous messages in a conversation when a new question is asked.
 
 - **Export Chat History**  
 *claudette\_export\_chat\_history*  
@@ -44,7 +44,8 @@ Claudette chat is powered by Claude 3.5 Sonnet by default, but you can switch be
 
 - **Switch System Prompt**  
 *claudette\_select\_system\_message\_panel*  
-Give Claude a role by adding a system prompt. Multiple system prompts can be added via the Claudette settings. This command allows you to switch the system prompt that is sent along with a conversation.
+Improve Claude's performance by using a [system prompt](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts). You can create and manage multiple prompts.
+
 
 ## Key Bindings
 
