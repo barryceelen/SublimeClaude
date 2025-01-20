@@ -57,7 +57,7 @@ class ClaudeAPI:
             	'max_tokens': MAX_TOKENS,
                 'model': self.model,
                 'stream': True,
-                'system': 'Please wrap all code examples in a markdown code block and ensure each code block is complete and self-contained.'
+                'system': 'Please wrap all code examples in a markdown code block and ensure each code block is complete and self-contained.',
                 'temperature': self.temperature
             }
 
