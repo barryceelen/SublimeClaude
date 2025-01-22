@@ -152,14 +152,14 @@ class ClaudetteExportChatHistoryCommand(sublime_plugin.WindowCommand):
             if not view:
                 return
 
-            # Get the conversation history from view settings
-            conversation_json = view.settings().get('claudette_conversation_json', '[]')
+            # Store conversation data as instance variables
+            self.conversation_json = view.settings().get('claudette_conversation_json', '[]')
             try:
-                messages = json.loads(conversation_json)
+                self.messages = json.loads(self.conversation_json)
             except json.JSONDecodeError:
-                messages = []
+                self.messages = []
 
-            if not messages:
+            if not self.messages:
                 sublime.error_message("No chat history to export")
                 return
 
@@ -182,21 +182,10 @@ class ClaudetteExportChatHistoryCommand(sublime_plugin.WindowCommand):
             return
 
         try:
-            view = self.window.active_view()
-            if not view:
-                return
-
             save_last_directory(path)
 
-            # Get the conversation history from view settings
-            conversation_json = view.settings().get('claudette_conversation_json', '[]')
-            try:
-                messages = json.loads(conversation_json)
-            except json.JSONDecodeError:
-                messages = []
-
             export_data = {
-                'messages': messages
+                'messages': self.messages
             }
 
             with open(path, 'w', encoding='utf-8') as f:
