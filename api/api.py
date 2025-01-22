@@ -52,6 +52,13 @@ class ClaudeAPI:
                 if msg.get('content', '').strip()
             ]
 
+            # Add cache control to the last message
+            if filtered_messages:
+                filtered_messages[-1] = {
+                    **filtered_messages[-1],
+                    'cache_control': {'type': 'ephemeral'}
+                }
+
             data = {
                 'messages': filtered_messages,
                 'max_tokens': MAX_TOKENS,
