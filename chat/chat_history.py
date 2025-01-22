@@ -43,16 +43,28 @@ def get_current_directory(window):
         return os.path.dirname(view.file_name())
     return last_dir
 
-def validate_message(message):
-    """Validate a single message object"""
+def validate_and_sanitize_message(message):
+    """Validate a single message object and remove disallowed items"""
     if not isinstance(message, dict):
         return False
+
     if 'role' not in message or 'content' not in message:
         return False
+
     if message['role'] not in {'system', 'user', 'assistant'}:
         return False
+
     if not isinstance(message['content'], str):
         return False
+
+    cleaned_message = {
+        'role': message['role'],
+        'content': message['content']
+    }
+
+    message.clear()
+    message.update(cleaned_message)
+
     return True
 
 class ClaudetteImportChatHistoryCommand(sublime_plugin.WindowCommand):
@@ -90,7 +102,7 @@ class ClaudetteImportChatHistoryCommand(sublime_plugin.WindowCommand):
             if not isinstance(messages, list):
                 raise ValueError("Messages must be a list")
 
-            valid_messages = [msg for msg in messages if validate_message(msg)]
+            valid_messages = [msg for msg in messages if validate_and_sanitize_message(msg)]
             if not valid_messages:
                 raise ValueError("No valid messages found in import file")
 
