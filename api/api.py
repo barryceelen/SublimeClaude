@@ -53,8 +53,8 @@ class ClaudeAPI:
             ]
 
             data = {
-            	'messages': filtered_messages,
-            	'max_tokens': MAX_TOKENS,
+                'messages': filtered_messages,
+                'max_tokens': MAX_TOKENS,
                 'model': self.model,
                 'stream': True,
                 'system': 'Please wrap all code examples in a markdown code block and ensure each code block is complete and self-contained.',
