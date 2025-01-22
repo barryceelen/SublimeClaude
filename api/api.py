@@ -54,17 +54,31 @@ class ClaudeAPI:
 
             # Add cache control to the last message
             if filtered_messages:
-                filtered_messages[-1] = {
-                    **filtered_messages[-1],
-                    'cache_control': {'type': 'ephemeral'}
-                }
+                last_message = filtered_messages[-1]
+                if isinstance(last_message.get('content'), list):
+                    # Add cache_control to each content item
+                    for content_item in last_message['content']:
+                        if isinstance(content_item, dict) and content_item.get('type') == 'text':
+                            content_item['cache_control'] = {'type': 'ephemeral'}
+                elif isinstance(last_message.get('content'), str):
+                    # If content is a string, convert it to the proper format
+                    filtered_messages[-1]['content'] = [{
+                        'type': 'text',
+                        'text': last_message['content'],
+                        'cache_control': {'type': 'ephemeral'}
+                    }]
 
             data = {
                 'messages': filtered_messages,
                 'max_tokens': MAX_TOKENS,
                 'model': self.model,
                 'stream': True,
-                'system': 'Please wrap all code examples in a markdown code block and ensure each code block is complete and self-contained.',
+                "system": [
+                    {
+                        "type": "text",
+                        "text": 'Please wrap all code examples in a markdown code block and ensure each code block is complete and self-contained.',
+                    }
+                ],
                 'temperature': self.get_valid_temperature(self.temperature)
             }
 
@@ -78,7 +92,10 @@ class ClaudeAPI:
 
                 selected_message = system_messages[default_index]
                 if selected_message and selected_message.strip():
-                    data['system'] = data['system'] + ' ' + selected_message.strip()
+                    data['system'].append({
+                        "type": "text",
+                        "text": selected_message.strip()
+                    })
 
             req = urllib.request.Request(
                 urllib.parse.urljoin(self.BASE_URL, 'messages'),
