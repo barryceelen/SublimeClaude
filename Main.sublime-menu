@@ -34,8 +34,8 @@
 								"command": "claudette_show_repomix"
 							},
 							{
-							    "caption": "Clear Content",
-							    "command": "claudette_clear_repomix"
+								"caption": "Clear Content",
+								"command": "claudette_clear_repomix"
 							}
 						]
 					},
