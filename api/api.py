@@ -1,10 +1,17 @@
+# api/api.py
 import sublime
 import json
 import urllib.request
 import urllib.parse
 import urllib.error
-from ..constants import ANTHROPIC_VERSION, DEFAULT_MODEL, MAX_TOKENS, SETTINGS_FILE
 from ..statusbar.spinner import Spinner
+from ..constants import ANTHROPIC_VERSION, DEFAULT_MODEL, MAX_TOKENS, SETTINGS_FILE
+
+CACHE_SUPPORTED_MODEL_PREFIXES = {
+    'claude-3-opus',
+    'claude-3-sonnet',
+    'claude-3-haiku'
+}
 
 class ClaudeAPI:
     BASE_URL = 'https://api.anthropic.com/v1/'
@@ -26,6 +33,14 @@ class ClaudeAPI:
             return 1.0
         except (TypeError, ValueError):
             return 1.0
+
+    @staticmethod
+    def should_use_cache_control(model):
+        """Determine if cache control should be used based on model."""
+        if not model:
+            return False
+        # Check if the model name starts with any of the supported prefixes
+        return any(model.startswith(prefix) for prefix in CACHE_SUPPORTED_MODEL_PREFIXES)
 
     def stream_response(self, chunk_callback, messages):
         """Stream API response for the given messages."""
@@ -96,6 +111,24 @@ class ClaudeAPI:
                         "type": "text",
                         "text": selected_message.strip()
                     })
+
+            # Add repomix content as system message if available
+            window = sublime.active_window()
+            if window:
+                current_view = window.active_view()
+                if current_view and current_view.settings().get('claudette_is_chat_view'):
+                    repomix_content = current_view.settings().get('claudette_repomix')
+                    if repomix_content:
+                        system_message = {
+                            "type": "text",
+                            "text": repomix_content.strip()
+                        }
+
+                        # Add cache control if model supports it
+                        if self.should_use_cache_control(self.model):
+                            system_message["cache_control"] = {"type": "ephemeral"}
+
+                        data['system'].append(system_message)
 
             req = urllib.request.Request(
                 urllib.parse.urljoin(self.BASE_URL, 'messages'),

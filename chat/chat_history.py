@@ -225,18 +225,8 @@ class ClaudetteClearChatHistoryCommand(sublime_plugin.TextCommand):
 
         if current_chat_view:
             current_chat_view.settings().set('claudette_conversation_json', '[]')
-            current_chat_view.set_read_only(False)
-
-            end_point = current_chat_view.size()
-
-            if end_point > 0:
-                current_chat_view.insert(edit, end_point, "\n\n")
-                end_point += 2
-
-            clear_message = "⚠️ Chat history cleared"
-            current_chat_view.insert(edit, end_point, clear_message)
-            current_chat_view.set_read_only(True)
-            current_chat_view.show(current_chat_view.size())
+            current_chat_view.settings().erase('claudette_repomix')
+            current_chat_view.settings().erase('claudette_repomix_tokens')
 
             claudette_chat_status_message(window, "Chat history cleared", prefix="✅")
             sublime.status_message("Chat history cleared")
