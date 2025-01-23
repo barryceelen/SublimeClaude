@@ -2,6 +2,8 @@
 
 .gitattributes      export-ignore
 .gitignore          export-ignore
+.repomixignore      export-ignore
+repomix.config.json export-ignore
 
 # Documentation
 screenshot.png		export-ignore
