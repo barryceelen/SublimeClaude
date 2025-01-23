@@ -3,6 +3,7 @@ import sublime_plugin
 import json
 import os
 from ..constants import PLUGIN_NAME
+from ..utils import claudette_chat_status_message
 from .ask_question import ClaudetteAskQuestionCommand
 from .chat_view import ClaudetteChatView
 
@@ -237,6 +238,7 @@ class ClaudetteClearChatHistoryCommand(sublime_plugin.TextCommand):
             current_chat_view.set_read_only(True)
             current_chat_view.show(current_chat_view.size())
 
+            claudette_chat_status_message(window, "Chat history cleared", prefix="✅")
             sublime.status_message("Chat history cleared")
         else:
             sublime.status_message("No active chat view found")
