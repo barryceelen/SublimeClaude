@@ -52,22 +52,6 @@ class ClaudeAPI:
                 if msg.get('content', '').strip()
             ]
 
-            # Add cache control to the last message
-            if filtered_messages:
-                last_message = filtered_messages[-1]
-                if isinstance(last_message.get('content'), list):
-                    # Add cache_control to each content item
-                    for content_item in last_message['content']:
-                        if isinstance(content_item, dict) and content_item.get('type') == 'text':
-                            content_item['cache_control'] = {'type': 'ephemeral'}
-                elif isinstance(last_message.get('content'), str):
-                    # If content is a string, convert it to the proper format
-                    filtered_messages[-1]['content'] = [{
-                        'type': 'text',
-                        'text': last_message['content'],
-                        'cache_control': {'type': 'ephemeral'}
-                    }]
-
             data = {
                 'messages': filtered_messages,
                 'max_tokens': MAX_TOKENS,
