@@ -27,4 +27,16 @@
 		"caption": "Claude: Switch System Prompt",
 		"command": "claudette_select_system_message_panel"
 	},
+	{
+		"caption": "Claude: Repomix Run",
+		"command": "claudette_run_repomix"
+	},
+	{
+		"caption": "Claude: Repomix Show Content",
+		"command": "claudette_show_repomix"
+	},
+	{
+		"caption": "Claude: Repomix Clear Content",
+		"command": "claudette_clear_repomix"
+	},
 ]

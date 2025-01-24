@@ -1,0 +1,21 @@
+[
+    {
+        "caption": "-",
+        "id": "side-bar-files-separator"
+    },
+    {
+        "caption": "Claudette",
+        "children": [
+            {
+                "caption": "Repomix Run",
+                "command": "claudette_run_repomix",
+                "args": {"paths": []},
+            },
+            {
+                "caption": "Repomix Clear",
+                "command": "claudette_clear_repomix",
+            }
+        ],
+        "id": "side-bar-claudette"
+    }
+]

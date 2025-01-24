@@ -1,10 +1,17 @@
+# api/api.py
 import sublime
 import json
 import urllib.request
 import urllib.parse
 import urllib.error
-from ..constants import ANTHROPIC_VERSION, DEFAULT_MODEL, MAX_TOKENS, SETTINGS_FILE
 from ..statusbar.spinner import Spinner
+from ..constants import ANTHROPIC_VERSION, DEFAULT_MODEL, MAX_TOKENS, SETTINGS_FILE
+
+CACHE_SUPPORTED_MODEL_PREFIXES = {
+    'claude-3-opus',
+    'claude-3-sonnet',
+    'claude-3-haiku'
+}
 
 class ClaudeAPI:
     BASE_URL = 'https://api.anthropic.com/v1/'
@@ -26,6 +33,14 @@ class ClaudeAPI:
             return 1.0
         except (TypeError, ValueError):
             return 1.0
+
+    @staticmethod
+    def should_use_cache_control(model):
+        """Determine if cache control should be used based on model."""
+        if not model:
+            return False
+        # Check if the model name starts with any of the supported prefixes
+        return any(model.startswith(prefix) for prefix in CACHE_SUPPORTED_MODEL_PREFIXES)
 
     def stream_response(self, chunk_callback, messages):
         """Stream API response for the given messages."""
@@ -81,12 +96,37 @@ class ClaudeAPI:
                         "text": selected_message.strip()
                     })
 
+            # @todo It's likely better to pass along the system message to stream_response()
+            # Find the active chat view
+            window = sublime.active_window()
+            if window:
+                current_chat_view = None
+                for view in window.views():
+                    if (view.settings().get('claudette_is_chat_view', False) and
+                        view.settings().get('claudette_is_current_chat', False)):
+                        current_chat_view = view
+
+                if current_chat_view:
+                    repomix_content = current_chat_view.settings().get('claudette_repomix')
+                    if repomix_content:
+                        system_message = {
+                            "type": "text",
+                            "text": repomix_content.strip()
+                        }
+
+                        if self.should_use_cache_control(self.model):
+                            system_message["cache_control"] = {"type": "ephemeral"}
+
+                        data['system'].append(system_message)
+
             req = urllib.request.Request(
                 urllib.parse.urljoin(self.BASE_URL, 'messages'),
                 data=json.dumps(data).encode('utf-8'),
                 headers=headers,
                 method='POST'
             )
+
+            print("System messages being sent:", json.dumps(data['system'], indent=2))
 
             try:
                 with urllib.request.urlopen(req) as response:
