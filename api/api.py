@@ -96,19 +96,24 @@ class ClaudeAPI:
                         "text": selected_message.strip()
                     })
 
-            # Add repomix content as system message if available
+            # @todo It's likely better to pass along the system message to stream_response()
+            # Find the active chat view
             window = sublime.active_window()
             if window:
-                current_view = window.active_view()
-                if current_view and current_view.settings().get('claudette_is_chat_view'):
-                    repomix_content = current_view.settings().get('claudette_repomix')
+                current_chat_view = None
+                for view in window.views():
+                    if (view.settings().get('claudette_is_chat_view', False) and
+                        view.settings().get('claudette_is_current_chat', False)):
+                        current_chat_view = view
+
+                if current_chat_view:
+                    repomix_content = current_chat_view.settings().get('claudette_repomix')
                     if repomix_content:
                         system_message = {
                             "type": "text",
                             "text": repomix_content.strip()
                         }
 
-                        # Add cache control if model supports it
                         if self.should_use_cache_control(self.model):
                             system_message["cache_control"] = {"type": "ephemeral"}
 
@@ -120,6 +125,8 @@ class ClaudeAPI:
                 headers=headers,
                 method='POST'
             )
+
+            print("System messages being sent:", json.dumps(data['system'], indent=2))
 
             try:
                 with urllib.request.urlopen(req) as response:
