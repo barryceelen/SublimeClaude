@@ -27,7 +27,7 @@
 						"children": [
 							{
 								"caption": "Run Repomix",
-								"command": "claudette_add_repomix"
+								"command": "claudette_run_repomix"
 							},
 							{
 								"caption": "Show Content",

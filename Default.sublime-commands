@@ -29,7 +29,7 @@
 	},
 	{
 		"caption": "Claude: Repomix Run",
-		"command": "claudette_add_repomix"
+		"command": "claudette_run_repomix"
 	},
 	{
 		"caption": "Claude: Repomix Show Content",

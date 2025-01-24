@@ -9,7 +9,7 @@ from ..constants import PLUGIN_NAME, SETTINGS_FILE
 from ..utils import claudette_chat_status_message
 from ..chat.ask_question import ClaudetteAskQuestionCommand
 
-class ClaudetteAddRepomixCommand(sublime_plugin.WindowCommand):
+class ClaudetteRunRepomixCommand(sublime_plugin.WindowCommand):
     def is_visible(self):
         # Show if there's either a folder open or files selected in sidebar
         if hasattr(self, 'paths'):

@@ -8,7 +8,7 @@
         "children": [
             {
                 "caption": "Repomix Run",
-                "command": "claudette_add_repomix",
+                "command": "claudette_run_repomix",
                 "args": {"paths": []},
             },
             {

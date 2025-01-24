@@ -11,7 +11,7 @@ import sublime_plugin
 from .chat.chat_view import ClaudetteChatViewListener
 from .chat.ask_question import ClaudetteAskQuestionCommand, ClaudetteAskNewQuestionCommand
 from .chat.chat_history import ClaudetteClearChatHistoryCommand, ClaudetteExportChatHistoryCommand, ClaudetteImportChatHistoryCommand
-from .repomix.add_repomix import ClaudetteAddRepomixCommand
+from .repomix.run_repomix import ClaudetteRunRepomixCommand
 from .repomix.clear_repomix import ClaudetteClearRepomixCommand
 from .repomix.show_repomix import ClaudetteShowRepomixCommand
 from .settings.select_model_panel import ClaudetteSelectModelPanelCommand
