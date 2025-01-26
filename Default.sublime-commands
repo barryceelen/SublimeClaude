@@ -27,4 +27,12 @@
 		"caption": "Claude: Switch System Prompt",
 		"command": "claudette_select_system_message_panel"
 	},
+	{
+		"caption": "Claudette: Settings",
+		"command": "edit_settings",
+		"args": {
+			"base_file": "${packages}/Claudette/Claudette.sublime-settings",
+			"default": "{\n\t$0\n}\n"
+		}
+	}
 ]
