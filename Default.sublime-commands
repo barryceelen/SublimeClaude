@@ -1,30 +1,30 @@
 [
 	{
-		"caption": "Claude: Ask Question",
+		"caption": "Claudette: Ask Question",
 		"command": "claudette_ask_question"
 	},
 	{
-		"caption": "Claude: Ask Question In New Chat View",
+		"caption": "Claudette: Ask Question In New Chat View",
 		"command": "claudette_ask_new_question"
 	},
 	{
-		"caption": "Claude: Clear Chat History",
+		"caption": "Claudette: Clear Chat History",
 		"command": "claudette_clear_chat_history"
 	},
 	{
-		"caption": "Claude: Export Chat History",
+		"caption": "Claudette: Export Chat History",
 		"command": "claudette_export_chat_history"
 	},
 	{
-		"caption": "Claude: Import Chat History",
+		"caption": "Claudette: Import Chat History",
 		"command": "claudette_import_chat_history"
 	},
 	{
-		"caption": "Claude: Switch Model",
+		"caption": "Claudette: Switch Model",
 		"command": "claudette_select_model_panel"
 	},
 	{
-		"caption": "Claude: Switch System Prompt",
+		"caption": "Claudette: Switch System Prompt",
 		"command": "claudette_select_system_message_panel"
 	},
 	{
