@@ -72,6 +72,8 @@ For Linux and Windows:
 ]
 ```
 
+**Pro tip:** press <kbd>Enter</kbd> when in a chat view to ask a question.
+
 ## Installation
 
 1. Install [Package Control](https://packagecontrol.io/installation) if you haven't already
