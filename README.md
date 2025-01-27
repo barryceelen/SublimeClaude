@@ -2,7 +2,7 @@
 
 ![Claude Chat View](https://raw.githubusercontent.com/barryceelen/Claudette/main/screenshot.png "Ask Claude")
 
-A [Sublime Text](http://www.sublimetext.com) package that integrates the Anthropic Claude API into your editor.
+A [Sublime Text](http://www.sublimetext.com) package that integrates the Anthropic Claude AI API into your editor.
 
 Type "Ask Question" in the command palette or find the *Claudette > Ask Question* item in the *Tools* menu to ask a question. Any selected text in the current file will be sent along to the Anthropic Claude API. Note that a Claude API key is required.
 
