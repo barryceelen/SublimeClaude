@@ -46,9 +46,9 @@ Claudette chat is powered by Claude 3.5 Sonnet by default, but you can switch be
 *claudette\_select\_system\_message\_panel*  
 Improve Claude's performance by using a [system prompt](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts). You can create and manage multiple prompts.
 
-## Key Bindings
+## Keyboard Shortcuts
 
-The Claudette package does not add [key bindings](https://www.sublimetext.com/docs/key_bindings.html) for its commands out of the box. The following example adds a handy keyboard shortcut that opens the "Ask Question" panel. You can add your own keyboard shortcuts via the *Settings > Keybindings* settings menu.
+The Claudette package does not add [key bindings](https://www.sublimetext.com/docs/key_bindings.html) out of the box. You can add your own keyboard shortcuts via the *Settings > Keybindings* settings menu. The following example adds a keyboard shortcut that opens the "Ask Question" panel.
 
 For OSX:
 
@@ -87,4 +87,4 @@ Note that this package interacts directly with the Anthropic Claude API. All cod
 
 ## Credits
 
-The package is for the most part written by Claude AI itself!
+The package is for the most part written by Claude AI itself.
