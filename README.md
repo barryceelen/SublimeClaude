@@ -46,7 +46,7 @@ Claudette chat is powered by Claude 3.5 Sonnet by default, but you can switch be
 *claudette\_select\_system\_message\_panel*  
 Improve Claude's performance by using a [system prompt](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts). You can create and manage multiple prompts.
 
-## Keyboard Shortcuts
+## Keyboard shortcuts
 
 The Claudette package does not add [key bindings](https://www.sublimetext.com/docs/key_bindings.html) out of the box. You can add your own keyboard shortcuts via the *Settings > Keybindings* settings menu. The following example adds a keyboard shortcut that opens the "Ask Question" panel.
 
@@ -81,7 +81,7 @@ For Linux and Windows:
 5. Get an API key from [Anthropic](https://console.anthropic.com/)
 6. Configure API key in *Preferences > Package Settings > Claudette > Settings*
 
-## Privacy & Legal
+## Privacy & legal
 
 Note that this package interacts directly with the Anthropic Claude API. All code that you share via the API, e.g. by including it in a chat, will be sent to Anthropic's servers. For information about Anthropic's privacy practices, data processing, and legal compliance, please visit the [Privacy & Legal documentation](https://support.anthropic.com/en/collections/4078534-privacy-legal).
 
