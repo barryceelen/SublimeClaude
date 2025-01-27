@@ -1,6 +1,6 @@
 # Claudette – Claude AI Assistant for Sublime Text
 
-![Claude Chat View](/screenshot.png?raw=true "Ask Claude")
+![Claude Chat View](https://raw.githubusercontent.com/barryceelen/Claudette/main/screenshot.png "Ask Claude")
 
 A [Sublime Text](http://www.sublimetext.com) package that integrates the Anthropic Claude API into your editor.
 
