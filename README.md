@@ -74,10 +74,12 @@ For Linux and Windows:
 
 ## Installation
 
-1. In Sublime Text, add the `https://github.com/barryceelen/Claudette` repository URL via the *Package Control: Add Repository* command
-2. Once the repository is added, use the *Package Control: Install Package* command to install the `Claudette` package
-2. Get an API key from [Anthropic](https://console.anthropic.com/)
-3. Configure API key in *Preferences > Package Settings > Claudette > Settings*
+1. Install [Package Control](https://packagecontrol.io/installation) if you haven't already
+2. Open the Command Palette (<kbd>⌘</kbd>+<kbd>⇧</kbd>+<kbd>P</kbd> on Mac, <kbd>Ctrl</kbd>+<kbd>⇧</kbd>+<kbd>P</kbd> on Windows/Linux)
+3. Type "Package Control: Install Package" and press Enter
+4. Type "Claudette" and press Enter to install
+5. Get an API key from [Anthropic](https://console.anthropic.com/)
+6. Configure API key in *Preferences > Package Settings > Claudette > Settings*
 
 ## Privacy & Legal
 
