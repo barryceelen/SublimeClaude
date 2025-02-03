@@ -14,7 +14,7 @@ Type "Ask Question" in the command palette or find the *Claudette > Ask Question
 - Configure custom [system prompts](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts) to customize Claude's behavior
 - Chat History: Export and import conversations as JSON files
 
-## Available commands
+## Commands
 
 All commands are available via the *Tools > Claudette* menu or via the command palette.
 
